@@ -1,4 +1,3 @@
-'use server';
 
 /**
  * @fileOverview An AI agent for suggesting optimal material configurations based on project size and selected materials.
@@ -37,6 +36,8 @@ export type SuggestMaterialConfigurationOutput = z.infer<
 export async function suggestMaterialConfiguration(
   input: SuggestMaterialConfigurationInput
 ): Promise<SuggestMaterialConfigurationOutput> {
+  // This flow will likely not work correctly when called directly from the client
+  // after removing 'use server'. It's designed for server-side execution.
   return suggestMaterialConfigurationFlow(input);
 }
 
