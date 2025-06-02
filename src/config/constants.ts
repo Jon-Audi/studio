@@ -4,8 +4,6 @@ export const FENCE_TYPE_OPTIONS = ["residential", "commercial"];
 export const GATE_FRAME_DIAMETER_OPTIONS = ["1 3/8″", "1 5/8″", "2″"];
 export const GATE_TYPE_OPTIONS = ["Single", "Double"]; // Used by PipeCutCalculator
 
-export const PROJECT_SIZE_OPTIONS = ["Small", "Medium", "Large"];
-
 // Vinyl Fence Options
 export const VINYL_PANEL_WIDTH_OPTIONS = ["6", "8"]; // in feet
 

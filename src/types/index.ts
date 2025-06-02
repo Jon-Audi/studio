@@ -133,12 +133,6 @@ export interface SplitRailCalculatorResult {
   notes?: string;
 }
 
-export const AiRecommenderSchema = z.object({
-  projectSize: z.string().min(1, "Project size is required"),
-  selectedMaterials: z.string().min(3, "Selected materials must be at least 3 characters"),
-});
-export type AiRecommenderInput = z.infer<typeof AiRecommenderSchema>;
-
 export const UnitConverterSchema = z.object({
   value: z.coerce.number(),
   fromUnit: z.string(),

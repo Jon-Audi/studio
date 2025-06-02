@@ -8,9 +8,8 @@ import { WoodCalculatorForm } from '@/components/calculators/wood-calculator-for
 import { AluminumCalculatorForm } from '@/components/calculators/aluminum-calculator-form';
 import { SplitRailCalculatorForm } from '@/components/calculators/split-rail-calculator-form';
 import { PipeCutCalculatorForm } from '@/components/calculators/pipe-cut-calculator-form';
-import { AiRecommenderForm } from '@/components/tools/ai-recommender-form';
 import { UnitConverterForm } from '@/components/tools/unit-converter-form';
-import { Fence, Scissors, Sparkles, Scale, TreePine, LayoutPanelLeft, BarChartHorizontalBig } from 'lucide-react';
+import { Fence, Scissors, Scale, TreePine, LayoutPanelLeft, BarChartHorizontalBig } from 'lucide-react';
 
 const SplitRailIconTab = () => (
  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4 lucide lucide-grip-horizontal"><circle cx="12" cy="9" r="1"></circle><circle cx="19" cy="9" r="1"></circle><circle cx="5" cy="9" r="1"></circle><circle cx="12" cy="15" r="1"></circle><circle cx="19" cy="15" r="1"></circle><circle cx="5" cy="15" r="1"></circle></svg>
@@ -22,7 +21,7 @@ export default function HomePage() {
       <AppHeader />
       <main className="flex-grow container mx-auto px-4 py-8">
         <Tabs defaultValue="chainlink" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-2 mb-6 h-auto flex-wrap justify-start">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 mb-6 h-auto flex-wrap justify-start">
             <TabsTrigger value="chainlink" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Fence className="mr-2 h-4 w-4" /> Chain Link
             </TabsTrigger>
@@ -44,9 +43,6 @@ export default function HomePage() {
             </TabsTrigger>
             <TabsTrigger value="unitconverter" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Scale className="mr-2 h-4 w-4" /> Unit Converter
-            </TabsTrigger>
-            <TabsTrigger value="airecommend" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Sparkles className="mr-2 h-4 w-4" /> AI Recommends
             </TabsTrigger>
           </TabsList>
 
@@ -70,9 +66,6 @@ export default function HomePage() {
           </TabsContent>
           <TabsContent value="unitconverter">
             <UnitConverterForm />
-          </TabsContent>
-          <TabsContent value="airecommend">
-            <AiRecommenderForm />
           </TabsContent>
         </Tabs>
       </main>

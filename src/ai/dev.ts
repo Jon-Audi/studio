@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/suggest-material-configuration.ts';
+// The suggest-material-configuration flow has been removed.
+// import '@/ai/flows/suggest-material-configuration.ts';
