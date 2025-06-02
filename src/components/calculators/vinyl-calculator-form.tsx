@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { 
   FENCE_HEIGHT_OPTIONS, 
   VINYL_PANEL_WIDTH_OPTIONS,
-  GATE_CHOICE_OPTIONS,
   SINGLE_GATE_WIDTH_OPTIONS,
   DOUBLE_GATE_WIDTH_OPTIONS
 } from '@/config/constants';
@@ -29,32 +28,35 @@ export function VinylCalculatorForm() {
     defaultValues: {
       fenceLength: 100,
       fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      panelWidth: VINYL_PANEL_WIDTH_OPTIONS[1], // Changed from [0] to [1] to default to 8'
+      panelWidth: VINYL_PANEL_WIDTH_OPTIONS[1], 
       ends: 2,
       corners: 0,
-      gateType: "none",
-      gateWidth: undefined,
+      numSingleGates: 0,
+      singleGateWidth: undefined,
+      numDoubleGates: 0,
+      doubleGateWidth: undefined,
     },
   });
 
-  const gateType = form.watch("gateType");
+  const numSingleGatesWatch = form.watch("numSingleGates");
+  const numDoubleGatesWatch = form.watch("numDoubleGates");
 
   useEffect(() => {
-    if (gateType === "none" && form.getValues("gateWidth") !== undefined) {
-        form.setValue("gateWidth", undefined);
+    if (numSingleGatesWatch === 0 || numSingleGatesWatch === undefined) {
+      form.setValue("singleGateWidth", undefined);
     }
-  }, [gateType, form]);
+  }, [numSingleGatesWatch, form]);
+
+  useEffect(() => {
+    if (numDoubleGatesWatch === 0 || numDoubleGatesWatch === undefined) {
+      form.setValue("doubleGateWidth", undefined);
+    }
+  }, [numDoubleGatesWatch, form]);
 
   function onSubmit(data: VinylCalculatorInput) {
     const calculatedResults = calculateVinyl(data);
     setResults(calculatedResults);
   }
-
-  const currentGateWidthOptions = gateType === "single" 
-    ? SINGLE_GATE_WIDTH_OPTIONS 
-    : gateType === "double" 
-    ? DOUBLE_GATE_WIDTH_OPTIONS 
-    : [];
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
@@ -146,37 +148,55 @@ export function VinylCalculatorForm() {
               />
               <FormField
                 control={form.control}
-                name="gateType"
+                name="numSingleGates"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gate Option</FormLabel>
-                    <Select 
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue("gateWidth", undefined); // Reset gateWidth when gateType changes
-                      }} 
-                      defaultValue={field.value}
-                    >
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select gate type" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {GATE_CHOICE_OPTIONS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Number of Single Gates</FormLabel>
+                    <FormControl><Input type="number" placeholder="e.g., 0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {gateType && gateType !== "none" && (
+              {(numSingleGatesWatch ?? 0) > 0 && (
                 <FormField
                   control={form.control}
-                  name="gateWidth"
+                  name="singleGateWidth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gate Width</FormLabel>
+                      <FormLabel>Single Gate Width</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
-                        <FormControl><SelectTrigger><SelectValue placeholder={`Select ${gateType} gate width`} /></SelectTrigger></FormControl>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select single gate width" /></SelectTrigger></FormControl>
                         <SelectContent>
-                          {currentGateWidthOptions.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}
+                          {SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+               <FormField
+                control={form.control}
+                name="numDoubleGates"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Double Gates</FormLabel>
+                    <FormControl><Input type="number" placeholder="e.g., 0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {(numDoubleGatesWatch ?? 0) > 0 && (
+                <FormField
+                  control={form.control}
+                  name="doubleGateWidth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Double Gate Width</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select double gate width" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />

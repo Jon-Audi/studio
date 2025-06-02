@@ -29,12 +29,13 @@ export const SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS = [
 ];
 
 
-// Gate Options for general calculators (Vinyl, Wood, Aluminum)
-export const GATE_CHOICE_OPTIONS = [
-  { value: "none", label: "No Gate" },
-  { value: "single", label: "Single Gate" },
-  { value: "double", label: "Double Gate" },
-];
+// Gate Width Options for general calculators (Vinyl, Wood, Aluminum)
+// GATE_CHOICE_OPTIONS is no longer used by these forms directly
+// export const GATE_CHOICE_OPTIONS = [
+//   { value: "none", label: "No Gate" },
+//   { value: "single", label: "Single Gate" },
+//   { value: "double", label: "Double Gate" },
+// ];
 
 export const SINGLE_GATE_WIDTH_OPTIONS = [ // For Vinyl, Wood, Aluminum
   { value: "3", label: "3 ft" },

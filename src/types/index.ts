@@ -47,8 +47,10 @@ export const VinylCalculatorSchema = z.object({
   panelWidth: z.string().min(1, "Panel width is required"),
   ends: z.coerce.number().min(0).optional().default(0),
   corners: z.coerce.number().min(0).optional().default(0),
-  gateType: z.string().optional().default("none"),
-  gateWidth: z.string().optional(),
+  numSingleGates: z.coerce.number().min(0).optional().default(0),
+  singleGateWidth: z.string().optional(),
+  numDoubleGates: z.coerce.number().min(0).optional().default(0),
+  doubleGateWidth: z.string().optional(),
 });
 export type VinylCalculatorInput = z.infer<typeof VinylCalculatorSchema>;
 export interface VinylCalculatorResult {
@@ -58,10 +60,13 @@ export interface VinylCalculatorResult {
   gatePosts?: number;
   totalPosts?: number;
   postCaps?: number;
-  ssPvcHinges?: number; // Sets of hinges
+  ssPvcHinges?: number; 
   ssPvcLatches?: number;
   ssDropRods?: number;
-  gateSectionWidth?: string;
+  numSingleGates?: number;
+  singleGateWidthLabel?: string;
+  numDoubleGates?: number;
+  doubleGateWidthLabel?: string;
   notes?: string;
 }
 
@@ -73,20 +78,26 @@ export const WoodCalculatorSchema = z.object({
   numRails: z.string().min(1, "Number of rails is required"),
   ends: z.coerce.number().min(0).optional().default(0),
   corners: z.coerce.number().min(0).optional().default(0),
-  gateType: z.string().optional().default("none"),
-  gateWidth: z.string().optional(),
+  numSingleGates: z.coerce.number().min(0).optional().default(0),
+  singleGateWidth: z.string().optional(),
+  numDoubleGates: z.coerce.number().min(0).optional().default(0),
+  doubleGateWidth: z.string().optional(),
 });
 export type WoodCalculatorInput = z.infer<typeof WoodCalculatorSchema>;
 export interface WoodCalculatorResult {
-  numSections: number;
-  numLinePosts: number;
-  numTerminalPosts: number;
-  totalPosts: number;
-  numPickets: number;
-  totalRailLength: number;
-  bagsOfConcrete: number;
-  selectedGateType?: string;
-  selectedGateWidth?: string;
+  numSections?: number;
+  numLinePosts?: number;
+  numTerminalPosts?: number;
+  totalPosts?: number;
+  numPickets?: number;
+  totalRailLength?: number;
+  bagsOfConcrete?: number;
+  gatePosts?: number;
+  numSingleGates?: number;
+  singleGateWidthLabel?: string;
+  numDoubleGates?: number;
+  doubleGateWidthLabel?: string;
+  notes?: string;
 }
 
 export const AluminumCalculatorSchema = z.object({
@@ -95,38 +106,49 @@ export const AluminumCalculatorSchema = z.object({
   panelWidth: z.string().min(1, "Panel width is required"),
   ends: z.coerce.number().min(0).optional().default(0),
   corners: z.coerce.number().min(0).optional().default(0),
-  gateType: z.string().optional().default("none"),
-  gateWidth: z.string().optional(),
+  numSingleGates: z.coerce.number().min(0).optional().default(0),
+  singleGateWidth: z.string().optional(),
+  numDoubleGates: z.coerce.number().min(0).optional().default(0),
+  doubleGateWidth: z.string().optional(),
 });
 export type AluminumCalculatorInput = z.infer<typeof AluminumCalculatorSchema>;
 export interface AluminumCalculatorResult {
-  numPanels: number;
-  numLinePosts: number;
-  numTerminalPosts: number;
-  totalPosts: number;
-  postCaps: number;
-  selectedGateType?: string;
-  selectedGateWidth?: string;
+  numPanels?: number;
+  numLinePosts?: number;
+  numTerminalPosts?: number;
+  totalPosts?: number;
+  postCaps?: number;
+  gatePosts?: number;
+  numSingleGates?: number;
+  singleGateWidthLabel?: string;
+  numDoubleGates?: number;
+  doubleGateWidthLabel?: string;
+  notes?: string;
 }
 
 export const SplitRailCalculatorSchema = z.object({
   fenceLength: z.coerce.number().min(1, "Fence length must be positive"),
   numRailsPerSection: z.string().min(1, "Rails per section is required"),
-  postSpacing: z.string().min(1, "Post spacing is required"), // Will be fixed to "10" but schema needs it
+  postSpacing: z.string().min(1, "Post spacing is required"), 
   ends: z.coerce.number().min(0, "Ends must be non-negative").optional().default(2),
   corners: z.coerce.number().min(0, "Corners must be non-negative").optional().default(0),
-  gateType: z.string().optional().default("none"),
-  gateWidth: z.string().optional(),
+  numSingleGates: z.coerce.number().min(0).optional().default(0),
+  singleGateWidth: z.string().optional(),
+  numDoubleGates: z.coerce.number().min(0).optional().default(0),
+  doubleGateWidth: z.string().optional(),
 });
 export type SplitRailCalculatorInput = z.infer<typeof SplitRailCalculatorSchema>;
 export interface SplitRailCalculatorResult {
   numSections?: number;
-  numPosts?: number;
+  numPosts?: number; // Total posts including fence and gate posts
   numRails?: number;
   userSpecifiedEnds?: number;
   userSpecifiedCorners?: number;
-  selectedGateType?: string;
-  selectedGateWidth?: string;
+  gatePosts?: number;
+  numSingleGates?: number;
+  singleGateWidthLabel?: string;
+  numDoubleGates?: number;
+  doubleGateWidthLabel?: string;
   screwHookAndEyesSets?: number;
   loopLatches?: number;
   woodDropRods?: number;
@@ -139,3 +161,13 @@ export const UnitConverterSchema = z.object({
   toUnit: z.string(),
 });
 export type UnitConverterInput = z.infer<typeof UnitConverterSchema>;
+
+export const LakelandTwoCalculatorSchema = z.object({
+  numSections: z.coerce.number().min(1, "Number of sections must be at least 1"),
+});
+export type LakelandTwoCalculatorInput = z.infer<typeof LakelandTwoCalculatorSchema>;
+export interface LakelandTwoCalculatorResult {
+  pickets: number;
+  rails: number;
+  uChannels: number;
+}
