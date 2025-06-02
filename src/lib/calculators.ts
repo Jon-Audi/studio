@@ -1,14 +1,14 @@
 
-import type { 
-  ChainlinkCalculatorInput, ChainlinkCalculatorResult, 
+import type {
+  ChainlinkCalculatorInput, ChainlinkCalculatorResult,
   PipeCutCalculatorInput, PipeCutCalculatorResult,
   VinylCalculatorInput, VinylCalculatorResult,
   WoodCalculatorInput, WoodCalculatorResult,
   AluminumCalculatorInput, AluminumCalculatorResult,
   SplitRailCalculatorInput, SplitRailCalculatorResult
 } from '@/types';
-import { 
-  SINGLE_GATE_WIDTH_OPTIONS, 
+import {
+  SINGLE_GATE_WIDTH_OPTIONS,
   DOUBLE_GATE_WIDTH_OPTIONS,
   SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
   SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
@@ -22,15 +22,15 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);
 
-  const linePostSpacing = 10; 
+  const linePostSpacing = 10;
   let interiorLinePosts = 0;
   if (numericFenceLength > 0) {
     const sections = Math.ceil(numericFenceLength / linePostSpacing);
     let postSpots = sections + 1;
-    interiorLinePosts = Math.max(0, postSpots - 2 - numericCorners); 
-    if(numericEnds === 1 && numericCorners === 0){ 
+    interiorLinePosts = Math.max(0, postSpots - 2 - numericCorners);
+    if(numericEnds === 1 && numericCorners === 0){
         interiorLinePosts = Math.max(0, postSpots - 1 - numericCorners);
-    } else if(numericEnds === 0 && numericCorners >=0){ 
+    } else if(numericEnds === 0 && numericCorners >=0){
         interiorLinePosts = Math.max(0, postSpots - numericCorners);
     } else if (numericEnds === 0 && numericCorners === 0 && numericFenceLength > 0) { // A straight run with no specified ends/corners as terminal posts.
         interiorLinePosts = Math.max(0, sections -1); // e.g. 100ft = 10 sections, 9 line posts. plus 2 implicit ends for a total of 11 posts for the line.
@@ -41,9 +41,9 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
   const fabricFootage = numericFenceLength;
   const pipeWeight = fenceType === 'commercial' ? 'SS40 WT' : 'SS20 WT';
   const fabricType = '9ga wire';
-  
-  const topRailSticks = Math.ceil(numericFenceLength / 21); 
-  const tieWires = Math.ceil(numericFenceLength * 1.5); 
+
+  const topRailSticks = Math.ceil(numericFenceLength / 21);
+  const tieWires = Math.ceil(numericFenceLength * 1.5);
   const loopCaps = interiorLinePosts;
 
   let result: ChainlinkCalculatorResult = {
@@ -58,11 +58,11 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
 
   const terminalPosts = numericEnds + numericCorners;
   if (terminalPosts > 0) {
-    const braceBands = (1 * numericEnds) + (2 * numericCorners); 
-    const tensionBars = (1 * numericEnds) + (2 * numericCorners); 
+    const braceBands = (1 * numericEnds) + (2 * numericCorners);
+    const tensionBars = (1 * numericEnds) + (2 * numericCorners);
     const tensionBands = (numericFenceHeight * terminalPosts); // Simpler: N per terminal post
-    const nutsAndBolts = tensionBands + braceBands; 
-    const postCaps = terminalPosts; 
+    const nutsAndBolts = tensionBands + braceBands;
+    const postCaps = terminalPosts;
 
     result = {
       ...result,
@@ -82,29 +82,29 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const numericGateWidth = Number(gateWidth);
   const numericGateHeight = Number(gateHeight);
 
-  let totalDeduction = 0; 
-  if (frameDiameter === "1 3/8″") totalDeduction = 3; 
-  else if (frameDiameter === "1 5/8″") totalDeduction = 3.5; 
-  else if (frameDiameter === "2″") totalDeduction = 4; 
+  let totalDeduction = 0;
+  if (frameDiameter === "1 3/8″") totalDeduction = 3;
+  else if (frameDiameter === "1 5/8″") totalDeduction = 3.5;
+  else if (frameDiameter === "2″") totalDeduction = 4;
 
   const isSingleGate = gateType === "Single";
   const leafs = isSingleGate ? 1 : 2;
-  
+
   const doubleGateGap = isSingleGate ? 0 : 1;
   const adjustedGateWidth = numericGateWidth - totalDeduction - doubleGateGap;
-  
+
   const leafWidth = adjustedGateWidth / leafs;
-  
-  let cornerFittingDeduction = 0; 
-  if (frameDiameter === "1 3/8″") cornerFittingDeduction = 1.5 * 2; 
+
+  let cornerFittingDeduction = 0;
+  if (frameDiameter === "1 3/8″") cornerFittingDeduction = 1.5 * 2;
   else if (frameDiameter === "1 5/8″") cornerFittingDeduction = 1.75 * 2;
   else if (frameDiameter === "2″") cornerFittingDeduction = 2 * 2;
 
 
   const horizontalsLength = parseFloat((leafWidth - cornerFittingDeduction).toFixed(2));
-  const uprightsLength = numericGateHeight; 
-  
-  const postCount = isSingleGate ? 2 : (leafs === 2 ? 2 : 0); 
+  const uprightsLength = numericGateHeight;
+
+  const postCount = isSingleGate ? 2 : (leafs === 2 ? 2 : 0);
   const postSpacing = numericGateWidth;
 
 
@@ -138,8 +138,8 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
     actualGateWidthValue = parseFloat(gateWidth);
     if (actualGateWidthValue > 0) {
       fenceLengthForPanels = Math.max(0, numericFenceLength - actualGateWidthValue);
-      calculatedGatePosts = 2; 
-      
+      calculatedGatePosts = 2;
+
       const widthOptions = gateType === 'single' ? SINGLE_GATE_WIDTH_OPTIONS : DOUBLE_GATE_WIDTH_OPTIONS;
       const selectedOption = widthOptions.find(opt => opt.value === gateWidth);
       gateWidthLabel = selectedOption ? selectedOption.label : `${actualGateWidthValue} ft`;
@@ -151,15 +151,15 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
         calculatedSsPvcLatches = 1;
       } else if (gateType === "double") {
         calculatedSsPvcHinges = 2; // 2 sets
-        calculatedSsPvcLatches = 1; 
+        calculatedSsPvcLatches = 1;
         calculatedSsDropRods = 1;
       }
     }
   }
-  
+
   if (fenceLengthForPanels <= 0 && actualGateWidthValue > 0) {
     results = {
-        ...results, 
+        ...results,
         gatePosts: calculatedGatePosts,
         totalPosts: calculatedGatePosts,
         postCaps: calculatedGatePosts,
@@ -173,15 +173,15 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
 
   const numPanels = Math.ceil(fenceLengthForPanels / numericPanelWidth);
   const postLocationsForFencePanels = numPanels > 0 ? numPanels + 1 : 0;
-  
+
   const numTerminalPostsFence = numericEnds + numericCorners;
   const numLinePostsFence = numPanels > 0 ? Math.max(0, postLocationsForFencePanels - numTerminalPostsFence) : 0;
-  
+
   const totalCalculatedPosts = numLinePostsFence + numTerminalPostsFence + calculatedGatePosts;
   const totalPostCaps = totalCalculatedPosts;
 
   results = {
-    ...results, 
+    ...results,
     numPanels: numPanels > 0 ? numPanels : undefined,
     numLinePosts: numLinePostsFence > 0 ? numLinePostsFence : undefined,
     numTerminalPosts: numTerminalPostsFence > 0 ? numTerminalPostsFence : undefined,
@@ -192,7 +192,7 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
     ssPvcLatches: calculatedSsPvcLatches > 0 ? calculatedSsPvcLatches : undefined,
     ssDropRods: calculatedSsDropRods > 0 ? calculatedSsDropRods : undefined,
   };
-  
+
   return results;
 }
 
@@ -200,7 +200,7 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
   const { fenceLength, postSpacing, picketWidth, numRails, ends = 0, corners = 0, gateType, gateWidth } = data;
   const numericFenceLength = Number(fenceLength);
   const numericPostSpacing = Number(postSpacing);
-  const numericPicketWidth = Number(picketWidth); 
+  const numericPicketWidth = Number(picketWidth);
   const numericNumRails = Number(numRails);
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);
@@ -219,16 +219,16 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
   const postLocationsForFence = numSections > 0 ? numSections + 1 : 0;
   const numTerminalPostsFence = numericEnds + numericCorners;
   const numLinePostsFence = numSections > 0 ? Math.max(0, postLocationsForFence - numTerminalPostsFence) : 0;
-  
+
   let gatePostsCount = 0;
   if (gateType && gateType !== "none" && actualGateWidthValue > 0) {
-    gatePostsCount = 2; 
+    gatePostsCount = 2;
   }
 
   const totalPosts = numLinePostsFence + numTerminalPostsFence + gatePostsCount;
-  const numPickets = fenceLengthForCalc > 0 ? Math.ceil((fenceLengthForCalc * 12) / numericPicketWidth) : 0; 
-  const totalRailLength = numSections * numericPostSpacing * numericNumRails; 
-  const bagsOfConcrete = totalPosts; 
+  const numPickets = fenceLengthForCalc > 0 ? Math.ceil((fenceLengthForCalc * 12) / numericPicketWidth) : 0;
+  const totalRailLength = numSections * numericPostSpacing * numericNumRails;
+  const bagsOfConcrete = totalPosts;
 
   let results: WoodCalculatorResult = {
     numSections,
@@ -276,9 +276,9 @@ export function calculateAluminum(data: AluminumCalculatorInput): AluminumCalcul
 
   let gatePostsCount = 0;
   if (gateType && gateType !== "none" && actualGateWidthValue > 0) {
-    gatePostsCount = 2; 
+    gatePostsCount = 2;
   }
-  
+
   const totalPosts = numLinePostsFence + numTerminalPostsFence + gatePostsCount;
   const postCaps = totalPosts;
 
@@ -298,17 +298,23 @@ export function calculateAluminum(data: AluminumCalculatorInput): AluminumCalcul
       results.selectedGateWidth = selectedOption ? selectedOption.label : `${gateWidth} ft`;
     }
   }
-  
+
   return results;
 }
 
 export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCalculatorResult {
-  const { fenceLength, numRailsPerSection, postSpacing, gateType, gateWidth } = data;
+  const { fenceLength, numRailsPerSection, postSpacing, ends = 2, corners = 0, gateType, gateWidth } = data;
   const numericFenceLength = Number(fenceLength);
   const numericNumRailsPerSection = Number(numRailsPerSection);
   const numericPostSpacing = Number(postSpacing); // Should be 10 from constants
+  const numericEnds = Number(ends);
+  const numericCorners = Number(corners);
 
-  let results: SplitRailCalculatorResult = {};
+
+  let results: SplitRailCalculatorResult = {
+    userSpecifiedEnds: numericEnds,
+    userSpecifiedCorners: numericCorners,
+  };
   let fenceLengthForCalc = numericFenceLength;
   let actualGateWidthValue = 0;
   let calculatedGatePosts = 0;
@@ -321,8 +327,8 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
     actualGateWidthValue = parseFloat(gateWidth);
     if (actualGateWidthValue > 0) {
       fenceLengthForCalc = Math.max(0, numericFenceLength - actualGateWidthValue);
-      calculatedGatePosts = 2; 
-      
+      calculatedGatePosts = 2;
+
       const widthOptions = gateType === 'single' ? SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS : SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS;
       const selectedOption = widthOptions.find(opt => opt.value === gateWidth);
       gateWidthLabel = selectedOption ? selectedOption.label : `${actualGateWidthValue} ft`;
@@ -351,8 +357,11 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
     };
     return results;
   }
-  
+
   const numSections = fenceLengthForCalc > 0 ? Math.ceil(fenceLengthForCalc / numericPostSpacing) : 0;
+  // For split rail, the number of posts for the fence part is typically sections + 1,
+  // regardless of explicit ends/corners, as these define the layout of that total length.
+  // All posts (line, end, corner) are usually the same type for split rail.
   const numPostsForFence = numSections > 0 ? numSections + 1 : 0;
   const totalPosts = numPostsForFence + calculatedGatePosts;
   const numRails = numSections * numericNumRailsPerSection;

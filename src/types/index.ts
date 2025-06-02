@@ -48,20 +48,20 @@ export const VinylCalculatorSchema = z.object({
   ends: z.coerce.number().min(0).optional().default(0),
   corners: z.coerce.number().min(0).optional().default(0),
   gateType: z.string().optional().default("none"),
-  gateWidth: z.string().optional(), 
+  gateWidth: z.string().optional(),
 });
 export type VinylCalculatorInput = z.infer<typeof VinylCalculatorSchema>;
 export interface VinylCalculatorResult {
-  numPanels?: number; 
-  numLinePosts?: number; 
-  numTerminalPosts?: number; 
-  gatePosts?: number; 
+  numPanels?: number;
+  numLinePosts?: number;
+  numTerminalPosts?: number;
+  gatePosts?: number;
   totalPosts?: number;
   postCaps?: number;
   ssPvcHinges?: number; // Sets of hinges
   ssPvcLatches?: number;
   ssDropRods?: number;
-  gateSectionWidth?: string; 
+  gateSectionWidth?: string;
   notes?: string;
 }
 
@@ -83,7 +83,7 @@ export interface WoodCalculatorResult {
   numTerminalPosts: number;
   totalPosts: number;
   numPickets: number;
-  totalRailLength: number; 
+  totalRailLength: number;
   bagsOfConcrete: number;
   selectedGateType?: string;
   selectedGateWidth?: string;
@@ -113,6 +113,8 @@ export const SplitRailCalculatorSchema = z.object({
   fenceLength: z.coerce.number().min(1, "Fence length must be positive"),
   numRailsPerSection: z.string().min(1, "Rails per section is required"),
   postSpacing: z.string().min(1, "Post spacing is required"), // Will be fixed to "10" but schema needs it
+  ends: z.coerce.number().min(0, "Ends must be non-negative").optional().default(2),
+  corners: z.coerce.number().min(0, "Corners must be non-negative").optional().default(0),
   gateType: z.string().optional().default("none"),
   gateWidth: z.string().optional(),
 });
@@ -121,6 +123,8 @@ export interface SplitRailCalculatorResult {
   numSections?: number;
   numPosts?: number;
   numRails?: number;
+  userSpecifiedEnds?: number;
+  userSpecifiedCorners?: number;
   selectedGateType?: string;
   selectedGateWidth?: string;
   screwHookAndEyesSets?: number;

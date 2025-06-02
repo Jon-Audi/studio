@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { 
-  SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS, 
+import {
+  SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS,
   SPLIT_RAIL_POST_SPACING_OPTIONS, // Will now be [{ value: "10", label: "10 ft" }]
   GATE_CHOICE_OPTIONS,
   SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
@@ -37,6 +37,8 @@ export function SplitRailCalculatorForm() {
       fenceLength: 100,
       numRailsPerSection: SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS[0],
       postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0].value, // Default to 10ft
+      ends: 2,
+      corners: 0,
       gateType: "none",
       gateWidth: undefined,
     },
@@ -60,11 +62,11 @@ export function SplitRailCalculatorForm() {
     const calculatedResults = calculateSplitRail(dataWithFixedPostSpacing);
     setResults(calculatedResults);
   }
-  
-  const currentGateWidthOptions = gateType === "single" 
-    ? SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS 
-    : gateType === "double" 
-    ? SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS 
+
+  const currentGateWidthOptions = gateType === "single"
+    ? SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS
+    : gateType === "double"
+    ? SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
     : [];
 
   return (
@@ -119,17 +121,39 @@ export function SplitRailCalculatorForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="ends"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Ends</FormLabel>
+                    <FormControl><Input type="number" placeholder="e.g., 2" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="corners"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Corners</FormLabel>
+                    <FormControl><Input type="number" placeholder="e.g., 0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                <FormField
                 control={form.control}
                 name="gateType"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Gate Option</FormLabel>
-                     <Select 
+                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
-                        form.setValue("gateWidth", undefined); 
-                      }} 
+                        form.setValue("gateWidth", undefined);
+                      }}
                       defaultValue={field.value}
                     >
                       <FormControl><SelectTrigger><SelectValue placeholder="Select gate type" /></SelectTrigger></FormControl>
