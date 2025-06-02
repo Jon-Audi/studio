@@ -29,7 +29,7 @@ export function VinylCalculatorForm() {
     defaultValues: {
       fenceLength: 100,
       fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      panelWidth: VINYL_PANEL_WIDTH_OPTIONS[0],
+      panelWidth: VINYL_PANEL_WIDTH_OPTIONS[1], // Changed from [0] to [1] to default to 8'
       ends: 2,
       corners: 0,
       gateType: "none",
