@@ -10,10 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { 
   SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS, 
-  SPLIT_RAIL_POST_SPACING_OPTIONS,
+  SPLIT_RAIL_POST_SPACING_OPTIONS, // Will now be [{ value: "10", label: "10 ft" }]
   GATE_CHOICE_OPTIONS,
-  SINGLE_GATE_WIDTH_OPTIONS,
-  DOUBLE_GATE_WIDTH_OPTIONS
+  SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
+  SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
 } from '@/config/constants';
 import type { SplitRailCalculatorInput, SplitRailCalculatorResult } from '@/types';
 import { SplitRailCalculatorSchema } from '@/types';
@@ -36,7 +36,7 @@ export function SplitRailCalculatorForm() {
     defaultValues: {
       fenceLength: 100,
       numRailsPerSection: SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS[0],
-      postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0],
+      postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0].value, // Default to 10ft
       gateType: "none",
       gateWidth: undefined,
     },
@@ -48,17 +48,23 @@ export function SplitRailCalculatorForm() {
     if (gateType === "none" && form.getValues("gateWidth") !== undefined) {
       form.setValue("gateWidth", undefined);
     }
+     // Ensure postSpacing is always 10 if somehow changed by other means, though UI restricts it
+    if (form.getValues("postSpacing") !== SPLIT_RAIL_POST_SPACING_OPTIONS[0].value) {
+      form.setValue("postSpacing", SPLIT_RAIL_POST_SPACING_OPTIONS[0].value);
+    }
   }, [gateType, form]);
 
   function onSubmit(data: SplitRailCalculatorInput) {
-    const calculatedResults = calculateSplitRail(data);
+    // Ensure postSpacing is fixed to 10 before calculation, even if schema allows string.
+    const dataWithFixedPostSpacing = { ...data, postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0].value };
+    const calculatedResults = calculateSplitRail(dataWithFixedPostSpacing);
     setResults(calculatedResults);
   }
   
   const currentGateWidthOptions = gateType === "single" 
-    ? SINGLE_GATE_WIDTH_OPTIONS 
+    ? SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS 
     : gateType === "double" 
-    ? DOUBLE_GATE_WIDTH_OPTIONS 
+    ? SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS 
     : [];
 
   return (
@@ -105,9 +111,9 @@ export function SplitRailCalculatorForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Post Spacing (ft)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select post spacing" /></SelectTrigger></FormControl>
-                      <SelectContent>{SPLIT_RAIL_POST_SPACING_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}'</SelectItem>)}</SelectContent>
+                      <SelectContent>{SPLIT_RAIL_POST_SPACING_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>

@@ -58,7 +58,7 @@ export interface VinylCalculatorResult {
   gatePosts?: number; 
   totalPosts?: number;
   postCaps?: number;
-  ssPvcHinges?: number;
+  ssPvcHinges?: number; // Sets of hinges
   ssPvcLatches?: number;
   ssDropRods?: number;
   gateSectionWidth?: string; 
@@ -112,17 +112,21 @@ export interface AluminumCalculatorResult {
 export const SplitRailCalculatorSchema = z.object({
   fenceLength: z.coerce.number().min(1, "Fence length must be positive"),
   numRailsPerSection: z.string().min(1, "Rails per section is required"),
-  postSpacing: z.string().min(1, "Post spacing is required"),
+  postSpacing: z.string().min(1, "Post spacing is required"), // Will be fixed to "10" but schema needs it
   gateType: z.string().optional().default("none"),
   gateWidth: z.string().optional(),
 });
 export type SplitRailCalculatorInput = z.infer<typeof SplitRailCalculatorSchema>;
 export interface SplitRailCalculatorResult {
-  numSections: number;
-  numPosts: number;
-  numRails: number;
+  numSections?: number;
+  numPosts?: number;
+  numRails?: number;
   selectedGateType?: string;
   selectedGateWidth?: string;
+  screwHookAndEyesSets?: number;
+  loopLatches?: number;
+  woodDropRods?: number;
+  notes?: string;
 }
 
 export const AiRecommenderSchema = z.object({

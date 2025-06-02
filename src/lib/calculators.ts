@@ -7,7 +7,12 @@ import type {
   AluminumCalculatorInput, AluminumCalculatorResult,
   SplitRailCalculatorInput, SplitRailCalculatorResult
 } from '@/types';
-import { SINGLE_GATE_WIDTH_OPTIONS, DOUBLE_GATE_WIDTH_OPTIONS } from '@/config/constants';
+import { 
+  SINGLE_GATE_WIDTH_OPTIONS, 
+  DOUBLE_GATE_WIDTH_OPTIONS,
+  SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
+  SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
+} from '@/config/constants';
 
 
 export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCalculatorResult {
@@ -142,20 +147,19 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
 
 
       if (gateType === "single") {
-        calculatedSsPvcHinges = 1;
+        calculatedSsPvcHinges = 1; // 1 set
         calculatedSsPvcLatches = 1;
       } else if (gateType === "double") {
-        calculatedSsPvcHinges = 2;
+        calculatedSsPvcHinges = 2; // 2 sets
         calculatedSsPvcLatches = 1; 
         calculatedSsDropRods = 1;
       }
     }
   }
   
-  // If only a gate is specified (fence length effectively becomes zero or less after gate subtraction)
   if (fenceLengthForPanels <= 0 && actualGateWidthValue > 0) {
     results = {
-        ...results, // Keep gateSectionWidth
+        ...results, 
         gatePosts: calculatedGatePosts,
         totalPosts: calculatedGatePosts,
         postCaps: calculatedGatePosts,
@@ -168,19 +172,16 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
   }
 
   const numPanels = Math.ceil(fenceLengthForPanels / numericPanelWidth);
-  // Number of post locations needed for the panel sections
   const postLocationsForFencePanels = numPanels > 0 ? numPanels + 1 : 0;
   
-  // Terminal posts for the fence run itself (ends and corners)
   const numTerminalPostsFence = numericEnds + numericCorners;
-  // Line posts for the fence run
   const numLinePostsFence = numPanels > 0 ? Math.max(0, postLocationsForFencePanels - numTerminalPostsFence) : 0;
   
   const totalCalculatedPosts = numLinePostsFence + numTerminalPostsFence + calculatedGatePosts;
   const totalPostCaps = totalCalculatedPosts;
 
   results = {
-    ...results, // Keep gate related info if any
+    ...results, 
     numPanels: numPanels > 0 ? numPanels : undefined,
     numLinePosts: numLinePostsFence > 0 ? numLinePostsFence : undefined,
     numTerminalPosts: numTerminalPostsFence > 0 ? numTerminalPostsFence : undefined,
@@ -221,7 +222,7 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
   
   let gatePostsCount = 0;
   if (gateType && gateType !== "none" && actualGateWidthValue > 0) {
-    gatePostsCount = 2; // Assume 2 posts for any gate for now
+    gatePostsCount = 2; 
   }
 
   const totalPosts = numLinePostsFence + numTerminalPostsFence + gatePostsCount;
@@ -305,51 +306,66 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
   const { fenceLength, numRailsPerSection, postSpacing, gateType, gateWidth } = data;
   const numericFenceLength = Number(fenceLength);
   const numericNumRailsPerSection = Number(numRailsPerSection);
-  const numericPostSpacing = Number(postSpacing);
+  const numericPostSpacing = Number(postSpacing); // Should be 10 from constants
 
+  let results: SplitRailCalculatorResult = {};
   let fenceLengthForCalc = numericFenceLength;
   let actualGateWidthValue = 0;
+  let calculatedGatePosts = 0;
+  let screwHookAndEyesSets = 0;
+  let loopLatches = 0;
+  let woodDropRods = 0;
+  let gateWidthLabel: string | undefined = undefined;
 
   if (gateType && gateType !== "none" && gateWidth) {
     actualGateWidthValue = parseFloat(gateWidth);
     if (actualGateWidthValue > 0) {
       fenceLengthForCalc = Math.max(0, numericFenceLength - actualGateWidthValue);
+      calculatedGatePosts = 2; 
+      
+      const widthOptions = gateType === 'single' ? SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS : SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS;
+      const selectedOption = widthOptions.find(opt => opt.value === gateWidth);
+      gateWidthLabel = selectedOption ? selectedOption.label : `${actualGateWidthValue} ft`;
+      results.selectedGateWidth = gateWidthLabel;
+      results.selectedGateType = gateType === "single" ? "Single Gate" : "Double Gate";
+
+      if (gateType === "single") {
+        screwHookAndEyesSets = 1; // 1 set for single gate
+        loopLatches = 1;
+      } else if (gateType === "double") {
+        screwHookAndEyesSets = 2; // 2 sets for double gate
+        loopLatches = 1;
+        woodDropRods = 1;
+      }
     }
   }
 
-  const numSections = fenceLengthForCalc > 0 ? Math.ceil(fenceLengthForCalc / numericPostSpacing) : 0;
-  // For split rail, posts are typically just one per section + 1, gate posts are often distinct or heavier duty.
-  // For simplicity here, we add 2 posts if a gate is selected, assuming they are part of the count.
-  let gatePostsCount = 0;
-  if (gateType && gateType !== "none" && actualGateWidthValue > 0) {
-    gatePostsCount = 2; 
+  if (fenceLengthForCalc <= 0 && actualGateWidthValue > 0) {
+    results = {
+        ...results,
+        numPosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+        screwHookAndEyesSets: screwHookAndEyesSets > 0 ? screwHookAndEyesSets : undefined,
+        loopLatches: loopLatches > 0 ? loopLatches : undefined,
+        woodDropRods: woodDropRods > 0 ? woodDropRods : undefined,
+        notes: "Calculation for gate only. Fence length is covered by the gate."
+    };
+    return results;
   }
-
+  
+  const numSections = fenceLengthForCalc > 0 ? Math.ceil(fenceLengthForCalc / numericPostSpacing) : 0;
   const numPostsForFence = numSections > 0 ? numSections + 1 : 0;
-  const numPosts = numPostsForFence + gatePostsCount - (actualGateWidthValue > 0 && numSections > 0 ? 1: 0) ; // Avoid double counting a post if gate replaces a section end
-                                                                                                            // This logic is a bit complex, simpler to assume gate posts are distinct additions for now.
-                                                                                                            // Let's simplify: numPosts = (sections for fence) + 1 (for fence end) + (2 for gate if exists)
-                                                                                                            // If a gate exists, it implies it needs its own posts.
-
-  const finalNumPosts = (numSections > 0 ? numSections + 1 : 0) + gatePostsCount;
-
-
+  const totalPosts = numPostsForFence + calculatedGatePosts;
   const numRails = numSections * numericNumRailsPerSection;
 
-  let results: SplitRailCalculatorResult = {
-    numSections,
-    numPosts: finalNumPosts,
-    numRails,
+  results = {
+    ...results,
+    numSections: numSections > 0 ? numSections : undefined,
+    numPosts: totalPosts > 0 ? totalPosts : undefined,
+    numRails: numRails > 0 ? numRails : undefined,
+    screwHookAndEyesSets: screwHookAndEyesSets > 0 ? screwHookAndEyesSets : undefined,
+    loopLatches: loopLatches > 0 ? loopLatches : undefined,
+    woodDropRods: woodDropRods > 0 ? woodDropRods : undefined,
   };
-
-  if (gateType && gateType !== "none") {
-    results.selectedGateType = gateType === "single" ? "Single Gate" : "Double Gate";
-    if (gateWidth) {
-      const widthOptions = gateType === 'single' ? SINGLE_GATE_WIDTH_OPTIONS : DOUBLE_GATE_WIDTH_OPTIONS;
-      const selectedOption = widthOptions.find(opt => opt.value === gateWidth);
-      results.selectedGateWidth = selectedOption ? selectedOption.label : `${gateWidth} ft`;
-    }
-  }
 
   return results;
 }
