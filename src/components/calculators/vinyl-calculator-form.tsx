@@ -1,7 +1,7 @@
 
 "use client";
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,7 @@ import type { VinylCalculatorInput, VinylCalculatorResult } from '@/types';
 import { VinylCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
 import { calculateVinyl } from '@/lib/calculators';
-import { LayoutPanelLeft } from 'lucide-react';
+import { LayoutPanelLeft, PlusCircle, Trash2 } from 'lucide-react';
 
 export function VinylCalculatorForm() {
   const [results, setResults] = useState<VinylCalculatorResult | null>(null);
@@ -31,27 +31,20 @@ export function VinylCalculatorForm() {
       panelWidth: VINYL_PANEL_WIDTH_OPTIONS[1], 
       ends: 2,
       corners: 0,
-      numSingleGates: 0,
-      singleGateWidth: undefined,
-      numDoubleGates: 0,
-      doubleGateWidth: undefined,
+      singleGates: [],
+      doubleGates: [],
     },
   });
 
-  const numSingleGatesWatch = form.watch("numSingleGates");
-  const numDoubleGatesWatch = form.watch("numDoubleGates");
+  const { fields: singleGateFields, append: singleGateAppend, remove: singleGateRemove } = useFieldArray({
+    control: form.control,
+    name: "singleGates"
+  });
 
-  useEffect(() => {
-    if (numSingleGatesWatch === 0 || numSingleGatesWatch === undefined) {
-      form.setValue("singleGateWidth", undefined);
-    }
-  }, [numSingleGatesWatch, form]);
-
-  useEffect(() => {
-    if (numDoubleGatesWatch === 0 || numDoubleGatesWatch === undefined) {
-      form.setValue("doubleGateWidth", undefined);
-    }
-  }, [numDoubleGatesWatch, form]);
+  const { fields: doubleGateFields, append: doubleGateAppend, remove: doubleGateRemove } = useFieldArray({
+    control: form.control,
+    name: "doubleGates"
+  });
 
   function onSubmit(data: VinylCalculatorInput) {
     const calculatedResults = calculateVinyl(data);
@@ -146,65 +139,86 @@ export function VinylCalculatorForm() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="numSingleGates"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number of Single Gates</FormLabel>
-                    <FormControl><Input type="number" placeholder="e.g., 0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {(numSingleGatesWatch ?? 0) > 0 && (
-                <FormField
-                  control={form.control}
-                  name="singleGateWidth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Single Gate Width</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select single gate width" /></SelectTrigger></FormControl>
-                        <SelectContent>
-                          {SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-               <FormField
-                control={form.control}
-                name="numDoubleGates"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number of Double Gates</FormLabel>
-                    <FormControl><Input type="number" placeholder="e.g., 0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {(numDoubleGatesWatch ?? 0) > 0 && (
-                <FormField
-                  control={form.control}
-                  name="doubleGateWidth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Double Gate Width</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select double gate width" /></SelectTrigger></FormControl>
-                        <SelectContent>
-                          {DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
             </div>
+
+            <div className="space-y-4">
+              <FormLabel>Single Gates</FormLabel>
+              {singleGateFields.map((field, index) => (
+                <div key={field.id} className="flex items-end space-x-2 p-3 border rounded-md bg-muted/50">
+                  <FormField
+                    control={form.control}
+                    name={`singleGates.${index}.width`}
+                    render={({ field: f }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel className="text-xs">Width</FormLabel>
+                        <Select onValueChange={f.onChange} defaultValue={f.value}>
+                          <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
+                          <SelectContent>{SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`singleGates.${index}.quantity`}
+                    render={({ field: f }) => (
+                      <FormItem className="w-24">
+                        <FormLabel className="text-xs">Qty</FormLabel>
+                        <FormControl><Input type="number" placeholder="Qty" {...f} onChange={e => f.onChange(parseInt(e.target.value) || 1)} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="button" variant="ghost" size="icon" onClick={() => singleGateRemove(index)} className="text-destructive hover:text-destructive/80">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: SINGLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Single Gate
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <FormLabel>Double Gates</FormLabel>
+              {doubleGateFields.map((field, index) => (
+                <div key={field.id} className="flex items-end space-x-2 p-3 border rounded-md bg-muted/50">
+                  <FormField
+                    control={form.control}
+                    name={`doubleGates.${index}.width`}
+                    render={({ field: f }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel className="text-xs">Width</FormLabel>
+                        <Select onValueChange={f.onChange} defaultValue={f.value}>
+                          <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
+                          <SelectContent>{DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`doubleGates.${index}.quantity`}
+                    render={({ field: f }) => (
+                      <FormItem className="w-24">
+                        <FormLabel className="text-xs">Qty</FormLabel>
+                        <FormControl><Input type="number" placeholder="Qty" {...f} onChange={e => f.onChange(parseInt(e.target.value) || 1)} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="button" variant="ghost" size="icon" onClick={() => doubleGateRemove(index)} className="text-destructive hover:text-destructive/80">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: DOUBLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Double Gate
+              </Button>
+            </div>
+
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               Calculate Materials
             </Button>

@@ -5,15 +5,9 @@ import type {
   VinylCalculatorInput, VinylCalculatorResult,
   WoodCalculatorInput, WoodCalculatorResult,
   AluminumCalculatorInput, AluminumCalculatorResult,
-  SplitRailCalculatorInput, SplitRailCalculatorResult
+  SplitRailCalculatorInput, SplitRailCalculatorResult,
+  GateEntry
 } from '@/types';
-import {
-  SINGLE_GATE_WIDTH_OPTIONS,
-  DOUBLE_GATE_WIDTH_OPTIONS,
-  SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
-  SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
-} from '@/config/constants';
-
 
 export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCalculatorResult {
   const { fenceLength, fenceHeight, fenceType, ends = 0, corners = 0 } = data;
@@ -114,55 +108,66 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   };
 }
 
+function calculateTotalGateData(singleGates: GateEntry[] = [], doubleGates: GateEntry[] = []) {
+  let totalLinearFootage = 0;
+  let totalSingleGateOpenings = 0;
+  let totalDoubleGateOpenings = 0;
+
+  singleGates.forEach(gate => {
+    totalLinearFootage += gate.quantity * parseFloat(gate.width);
+    totalSingleGateOpenings += gate.quantity;
+  });
+
+  doubleGates.forEach(gate => {
+    totalLinearFootage += gate.quantity * parseFloat(gate.width);
+    totalDoubleGateOpenings += gate.quantity;
+  });
+  
+  const totalGateOpenings = totalSingleGateOpenings + totalDoubleGateOpenings;
+  const calculatedGatePosts = totalGateOpenings * 2;
+
+  return {
+    totalLinearFootage,
+    totalSingleGateOpenings,
+    totalDoubleGateOpenings,
+    totalGateOpenings,
+    calculatedGatePosts
+  };
+}
+
+
 export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResult {
-  const { fenceLength, panelWidth, ends = 0, corners = 0, numSingleGates = 0, singleGateWidth, numDoubleGates = 0, doubleGateWidth } = data;
+  const { fenceLength, panelWidth, ends = 0, corners = 0, singleGates = [], doubleGates = [] } = data;
   const numericFenceLength = Number(fenceLength);
   const numericPanelWidth = Number(panelWidth);
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);
-  const numericNumSingleGates = Number(numSingleGates);
-  const numericNumDoubleGates = Number(numDoubleGates);
 
-  let results: VinylCalculatorResult = {};
-  let fenceLengthForPanels = numericFenceLength;
-  let totalGateLinearFootage = 0;
-  let calculatedGatePosts = 0;
+  const gateData = calculateTotalGateData(singleGates, doubleGates);
+  
+  let results: VinylCalculatorResult = {
+    totalGateOpenings: gateData.totalGateOpenings > 0 ? gateData.totalGateOpenings : undefined,
+    totalGateLinearFootage: gateData.totalLinearFootage > 0 ? gateData.totalLinearFootage : undefined,
+  };
+  
+  let fenceLengthForPanels = Math.max(0, numericFenceLength - gateData.totalLinearFootage);
+  
   let calculatedSsPvcHinges = 0;
   let calculatedSsPvcLatches = 0;
   let calculatedSsDropRods = 0;
 
-  if (numericNumSingleGates > 0 && singleGateWidth) {
-    const sgWidth = parseFloat(singleGateWidth);
-    totalGateLinearFootage += numericNumSingleGates * sgWidth;
-    const selectedOption = SINGLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === singleGateWidth);
-    results.singleGateWidthLabel = selectedOption ? selectedOption.label : `${sgWidth} ft`;
-    results.numSingleGates = numericNumSingleGates;
+  if (gateData.totalGateOpenings > 0) {
+      calculatedSsPvcHinges = (gateData.totalSingleGateOpenings * 1) + (gateData.totalDoubleGateOpenings * 2);
+      calculatedSsPvcLatches = gateData.totalSingleGateOpenings + gateData.totalDoubleGateOpenings;
+      calculatedSsDropRods = gateData.totalDoubleGateOpenings * 1;
   }
 
-  if (numericNumDoubleGates > 0 && doubleGateWidth) {
-    const dgWidth = parseFloat(doubleGateWidth);
-    totalGateLinearFootage += numericNumDoubleGates * dgWidth;
-    const selectedOption = DOUBLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === doubleGateWidth);
-    results.doubleGateWidthLabel = selectedOption ? selectedOption.label : `${dgWidth} ft`;
-    results.numDoubleGates = numericNumDoubleGates;
-  }
-  
-  fenceLengthForPanels = Math.max(0, numericFenceLength - totalGateLinearFootage);
-  
-  if (numericNumSingleGates > 0 || numericNumDoubleGates > 0) {
-      calculatedGatePosts = (numericNumSingleGates + numericNumDoubleGates) * 2;
-      calculatedSsPvcHinges = (numericNumSingleGates * 1) + (numericNumDoubleGates * 2); // 1 set for single, 2 sets for double
-      calculatedSsPvcLatches = numericNumSingleGates + numericNumDoubleGates; // 1 latch per gate opening
-      calculatedSsDropRods = numericNumDoubleGates * 1; // 1 drop rod per double gate
-  }
-
-
-  if (fenceLengthForPanels <= 0 && totalGateLinearFootage > 0) {
+  if (fenceLengthForPanels <= 0 && gateData.totalGateOpenings > 0) {
     results = {
         ...results,
-        gatePosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
-        totalPosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
-        postCaps: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+        gatePosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
+        totalPosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
+        postCaps: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
         ssPvcHinges: calculatedSsPvcHinges > 0 ? calculatedSsPvcHinges : undefined,
         ssPvcLatches: calculatedSsPvcLatches > 0 ? calculatedSsPvcLatches : undefined,
         ssDropRods: calculatedSsDropRods > 0 ? calculatedSsDropRods : undefined,
@@ -178,7 +183,7 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
   const numLinePostsFence = numPanels > 0 ? Math.max(0, postLocationsForFencePanels - numTerminalPostsFence) : 0;
   
   const totalFencePosts = numLinePostsFence + numTerminalPostsFence;
-  const totalCalculatedPosts = totalFencePosts + calculatedGatePosts;
+  const totalCalculatedPosts = totalFencePosts + gateData.calculatedGatePosts;
   const totalPostCaps = totalCalculatedPosts;
 
   results = {
@@ -186,7 +191,7 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
     numPanels: numPanels > 0 ? numPanels : undefined,
     numLinePosts: numLinePostsFence > 0 ? numLinePostsFence : undefined,
     numTerminalPosts: numTerminalPostsFence > 0 ? numTerminalPostsFence : undefined,
-    gatePosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+    gatePosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
     totalPosts: totalCalculatedPosts > 0 ? totalCalculatedPosts : undefined,
     postCaps: totalPostCaps > 0 ? totalPostCaps : undefined,
     ssPvcHinges: calculatedSsPvcHinges > 0 ? calculatedSsPvcHinges : undefined,
@@ -198,42 +203,22 @@ export function calculateVinyl(data: VinylCalculatorInput): VinylCalculatorResul
 }
 
 export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
-  const { fenceLength, postSpacing, picketWidth, numRails, ends = 0, corners = 0, numSingleGates = 0, singleGateWidth, numDoubleGates = 0, doubleGateWidth } = data;
+  const { fenceLength, postSpacing, picketWidth, numRails, ends = 0, corners = 0, singleGates = [], doubleGates = [] } = data;
   const numericFenceLength = Number(fenceLength);
   const numericPostSpacing = Number(postSpacing);
   const numericPicketWidth = Number(picketWidth);
   const numericNumRails = Number(numRails);
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);
-  const numericNumSingleGates = Number(numSingleGates);
-  const numericNumDoubleGates = Number(numDoubleGates);
   
-  let results: WoodCalculatorResult = {};
-  let fenceLengthForCalc = numericFenceLength;
-  let totalGateLinearFootage = 0;
-  let calculatedGatePosts = 0;
+  const gateData = calculateTotalGateData(singleGates, doubleGates);
 
-  if (numericNumSingleGates > 0 && singleGateWidth) {
-    const sgWidth = parseFloat(singleGateWidth);
-    totalGateLinearFootage += numericNumSingleGates * sgWidth;
-    const selectedOption = SINGLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === singleGateWidth);
-    results.singleGateWidthLabel = selectedOption ? selectedOption.label : `${sgWidth} ft`;
-    results.numSingleGates = numericNumSingleGates;
-  }
+  let results: WoodCalculatorResult = {
+    totalGateOpenings: gateData.totalGateOpenings > 0 ? gateData.totalGateOpenings : undefined,
+    totalGateLinearFootage: gateData.totalLinearFootage > 0 ? gateData.totalLinearFootage : undefined,
+  };
 
-  if (numericNumDoubleGates > 0 && doubleGateWidth) {
-    const dgWidth = parseFloat(doubleGateWidth);
-    totalGateLinearFootage += numericNumDoubleGates * dgWidth;
-    const selectedOption = DOUBLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === doubleGateWidth);
-    results.doubleGateWidthLabel = selectedOption ? selectedOption.label : `${dgWidth} ft`;
-    results.numDoubleGates = numericNumDoubleGates;
-  }
-
-  fenceLengthForCalc = Math.max(0, numericFenceLength - totalGateLinearFootage);
-
-  if (numericNumSingleGates > 0 || numericNumDoubleGates > 0) {
-    calculatedGatePosts = (numericNumSingleGates + numericNumDoubleGates) * 2;
-  }
+  let fenceLengthForCalc = Math.max(0, numericFenceLength - gateData.totalLinearFootage);
   
   const numSections = fenceLengthForCalc > 0 ? Math.ceil(fenceLengthForCalc / numericPostSpacing) : 0;
   const postLocationsForFence = numSections > 0 ? numSections + 1 : 0;
@@ -241,7 +226,7 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
   const numLinePostsFence = numSections > 0 ? Math.max(0, postLocationsForFence - numTerminalPostsFence) : 0;
 
   const totalFencePosts = numLinePostsFence + numTerminalPostsFence;
-  const totalPosts = totalFencePosts + calculatedGatePosts;
+  const totalPosts = totalFencePosts + gateData.calculatedGatePosts;
   const numPickets = fenceLengthForCalc > 0 ? Math.ceil((fenceLengthForCalc * 12) / numericPicketWidth) : 0;
   const totalRailLength = numSections * numericPostSpacing * numericNumRails;
   const bagsOfConcrete = totalPosts > 0 ? totalPosts : undefined;
@@ -252,14 +237,14 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
     numSections: numSections > 0 ? numSections : undefined,
     numLinePosts: numLinePostsFence > 0 ? numLinePostsFence : undefined,
     numTerminalPosts: numTerminalPostsFence > 0 ? numTerminalPostsFence : undefined,
-    gatePosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+    gatePosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
     totalPosts: totalPosts > 0 ? totalPosts : undefined,
     numPickets: numPickets > 0 ? numPickets : undefined,
     totalRailLength: totalRailLength > 0 ? totalRailLength : undefined,
     bagsOfConcrete,
   };
   
-  if (fenceLengthForCalc <= 0 && totalGateLinearFootage > 0) {
+  if (fenceLengthForCalc <= 0 && gateData.totalGateOpenings > 0) {
     results.notes = "Calculation primarily for gate(s). Fence length covered by gate(s).";
   }
 
@@ -267,40 +252,20 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
 }
 
 export function calculateAluminum(data: AluminumCalculatorInput): AluminumCalculatorResult {
-  const { fenceLength, panelWidth, ends = 0, corners = 0, numSingleGates = 0, singleGateWidth, numDoubleGates = 0, doubleGateWidth } = data;
+  const { fenceLength, panelWidth, ends = 0, corners = 0, singleGates = [], doubleGates = [] } = data;
   const numericFenceLength = Number(fenceLength);
   const numericPanelWidth = Number(panelWidth);
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);
-  const numericNumSingleGates = Number(numSingleGates);
-  const numericNumDoubleGates = Number(numDoubleGates);
 
-  let results: AluminumCalculatorResult = {};
-  let fenceLengthForCalc = numericFenceLength;
-  let totalGateLinearFootage = 0;
-  let calculatedGatePosts = 0;
+  const gateData = calculateTotalGateData(singleGates, doubleGates);
+
+  let results: AluminumCalculatorResult = {
+    totalGateOpenings: gateData.totalGateOpenings > 0 ? gateData.totalGateOpenings : undefined,
+    totalGateLinearFootage: gateData.totalLinearFootage > 0 ? gateData.totalLinearFootage : undefined,
+  };
   
-  if (numericNumSingleGates > 0 && singleGateWidth) {
-    const sgWidth = parseFloat(singleGateWidth);
-    totalGateLinearFootage += numericNumSingleGates * sgWidth;
-    const selectedOption = SINGLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === singleGateWidth);
-    results.singleGateWidthLabel = selectedOption ? selectedOption.label : `${sgWidth} ft`;
-    results.numSingleGates = numericNumSingleGates;
-  }
-
-  if (numericNumDoubleGates > 0 && doubleGateWidth) {
-    const dgWidth = parseFloat(doubleGateWidth);
-    totalGateLinearFootage += numericNumDoubleGates * dgWidth;
-    const selectedOption = DOUBLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === doubleGateWidth);
-    results.doubleGateWidthLabel = selectedOption ? selectedOption.label : `${dgWidth} ft`;
-    results.numDoubleGates = numericNumDoubleGates;
-  }
-
-  fenceLengthForCalc = Math.max(0, numericFenceLength - totalGateLinearFootage);
-
-  if (numericNumSingleGates > 0 || numericNumDoubleGates > 0) {
-    calculatedGatePosts = (numericNumSingleGates + numericNumDoubleGates) * 2;
-  }
+  let fenceLengthForCalc = Math.max(0, numericFenceLength - gateData.totalLinearFootage);
 
   const numPanels = fenceLengthForCalc > 0 ? Math.ceil(fenceLengthForCalc / numericPanelWidth) : 0;
   const postLocationsForFence = numPanels > 0 ? numPanels + 1 : 0;
@@ -308,7 +273,7 @@ export function calculateAluminum(data: AluminumCalculatorInput): AluminumCalcul
   const numLinePostsFence = numPanels > 0 ? Math.max(0, postLocationsForFence - numTerminalPostsFence) : 0;
 
   const totalFencePosts = numLinePostsFence + numTerminalPostsFence;
-  const totalPosts = totalFencePosts + calculatedGatePosts;
+  const totalPosts = totalFencePosts + gateData.calculatedGatePosts;
   const postCaps = totalPosts > 0 ? totalPosts : undefined;
 
   results = {
@@ -316,12 +281,12 @@ export function calculateAluminum(data: AluminumCalculatorInput): AluminumCalcul
     numPanels: numPanels > 0 ? numPanels : undefined,
     numLinePosts: numLinePostsFence > 0 ? numLinePostsFence : undefined,
     numTerminalPosts: numTerminalPostsFence > 0 ? numTerminalPostsFence : undefined,
-    gatePosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+    gatePosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
     totalPosts: totalPosts > 0 ? totalPosts : undefined,
     postCaps,
   };
   
-  if (fenceLengthForCalc <= 0 && totalGateLinearFootage > 0) {
+  if (fenceLengthForCalc <= 0 && gateData.totalGateOpenings > 0) {
     results.notes = "Calculation primarily for gate(s). Fence length covered by gate(s).";
   }
 
@@ -329,56 +294,39 @@ export function calculateAluminum(data: AluminumCalculatorInput): AluminumCalcul
 }
 
 export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCalculatorResult {
-  const { fenceLength, numRailsPerSection, postSpacing, ends = 2, corners = 0, numSingleGates = 0, singleGateWidth, numDoubleGates = 0, doubleGateWidth } = data;
+  const { fenceLength, numRailsPerSection, postSpacing, ends = 2, corners = 0, singleGates = [], doubleGates = [] } = data;
   const numericFenceLength = Number(fenceLength);
   const numericNumRailsPerSection = Number(numRailsPerSection);
   const numericPostSpacing = Number(postSpacing); 
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);
-  const numericNumSingleGates = Number(numSingleGates);
-  const numericNumDoubleGates = Number(numDoubleGates);
+
+  const gateData = calculateTotalGateData(singleGates, doubleGates);
 
   let results: SplitRailCalculatorResult = {
     userSpecifiedEnds: numericEnds,
     userSpecifiedCorners: numericCorners,
+    totalGateOpenings: gateData.totalGateOpenings > 0 ? gateData.totalGateOpenings : undefined,
+    totalGateLinearFootage: gateData.totalLinearFootage > 0 ? gateData.totalLinearFootage : undefined,
   };
-  let fenceLengthForCalc = numericFenceLength;
-  let totalGateLinearFootage = 0;
-  let calculatedGatePosts = 0;
+  
+  let fenceLengthForCalc = Math.max(0, numericFenceLength - gateData.totalLinearFootage);
+
   let screwHookAndEyesSets = 0;
   let loopLatches = 0;
   let woodDropRods = 0;
 
-  if (numericNumSingleGates > 0 && singleGateWidth) {
-    const sgWidth = parseFloat(singleGateWidth);
-    totalGateLinearFootage += numericNumSingleGates * sgWidth;
-    const selectedOption = SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === singleGateWidth);
-    results.singleGateWidthLabel = selectedOption ? selectedOption.label : `${sgWidth} ft`;
-    results.numSingleGates = numericNumSingleGates;
+  if (gateData.totalGateOpenings > 0) {
+    screwHookAndEyesSets = (gateData.totalSingleGateOpenings * 1) + (gateData.totalDoubleGateOpenings * 2);
+    loopLatches = gateData.totalSingleGateOpenings + gateData.totalDoubleGateOpenings;
+    woodDropRods = gateData.totalDoubleGateOpenings * 1;
   }
 
-  if (numericNumDoubleGates > 0 && doubleGateWidth) {
-    const dgWidth = parseFloat(doubleGateWidth);
-    totalGateLinearFootage += numericNumDoubleGates * dgWidth;
-    const selectedOption = SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS.find(opt => opt.value === doubleGateWidth);
-    results.doubleGateWidthLabel = selectedOption ? selectedOption.label : `${dgWidth} ft`;
-    results.numDoubleGates = numericNumDoubleGates;
-  }
-  
-  fenceLengthForCalc = Math.max(0, numericFenceLength - totalGateLinearFootage);
-
-  if (numericNumSingleGates > 0 || numericNumDoubleGates > 0) {
-    calculatedGatePosts = (numericNumSingleGates + numericNumDoubleGates) * 2;
-    screwHookAndEyesSets = (numericNumSingleGates * 1) + (numericNumDoubleGates * 2);
-    loopLatches = numericNumSingleGates + numericNumDoubleGates;
-    woodDropRods = numericNumDoubleGates * 1;
-  }
-
-  if (fenceLengthForCalc <= 0 && totalGateLinearFootage > 0) {
+  if (fenceLengthForCalc <= 0 && gateData.totalGateOpenings > 0) {
     results = {
         ...results,
-        numPosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
-        gatePosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+        numPosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
+        gatePosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
         screwHookAndEyesSets: screwHookAndEyesSets > 0 ? screwHookAndEyesSets : undefined,
         loopLatches: loopLatches > 0 ? loopLatches : undefined,
         woodDropRods: woodDropRods > 0 ? woodDropRods : undefined,
@@ -389,7 +337,7 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
 
   const numSections = fenceLengthForCalc > 0 ? Math.ceil(fenceLengthForCalc / numericPostSpacing) : 0;
   const numPostsForFence = numSections > 0 ? numSections + 1 : 0;
-  const totalPosts = numPostsForFence + calculatedGatePosts;
+  const totalPosts = numPostsForFence + gateData.calculatedGatePosts;
   const numRails = numSections * numericNumRailsPerSection;
 
   results = {
@@ -397,7 +345,7 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
     numSections: numSections > 0 ? numSections : undefined,
     numPosts: totalPosts > 0 ? totalPosts : undefined,
     numRails: numRails > 0 ? numRails : undefined,
-    gatePosts: calculatedGatePosts > 0 ? calculatedGatePosts : undefined,
+    gatePosts: gateData.calculatedGatePosts > 0 ? gateData.calculatedGatePosts : undefined,
     screwHookAndEyesSets: screwHookAndEyesSets > 0 ? screwHookAndEyesSets : undefined,
     loopLatches: loopLatches > 0 ? loopLatches : undefined,
     woodDropRods: woodDropRods > 0 ? woodDropRods : undefined,
