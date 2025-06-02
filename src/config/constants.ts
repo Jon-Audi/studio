@@ -21,22 +21,22 @@ export const ALUMINUM_PANEL_WIDTH_OPTIONS = ["6", "8"]; // in feet
 // Split Rail Fence Options
 export const SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS = ["2", "3", "4"];
 export const SPLIT_RAIL_POST_SPACING_OPTIONS = [{ value: "10", label: "10 ft" }]; // Fixed to 10 ft
+
 export const SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS = [
+  { value: "3", label: "3 ft" },
+  { value: "4", label: "4 ft" },
+  { value: "5", label: "5 ft" },
   { value: "6", label: "6 ft" },
 ];
 export const SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS = [
+  { value: "6", label: "6 ft (2 x 3ft)" },
+  { value: "8", label: "8 ft (2 x 4ft)" },
+  { value: "10", label: "10 ft (2 x 5ft)" },
   { value: "12", label: "12 ft (2 x 6ft)" },
 ];
 
 
 // Gate Width Options for general calculators (Vinyl, Wood, Aluminum)
-// GATE_CHOICE_OPTIONS is no longer used by these forms directly
-// export const GATE_CHOICE_OPTIONS = [
-//   { value: "none", label: "No Gate" },
-//   { value: "single", label: "Single Gate" },
-//   { value: "double", label: "Double Gate" },
-// ];
-
 export const SINGLE_GATE_WIDTH_OPTIONS = [ // For Vinyl, Wood, Aluminum
   { value: "3", label: "3 ft" },
   { value: "4", label: "4 ft" },
@@ -48,3 +48,4 @@ export const DOUBLE_GATE_WIDTH_OPTIONS = [ // For Vinyl, Wood, Aluminum
   { value: "8", label: "8 ft (2 x 4ft)" },
   { value: "10", label: "10 ft (2 x 5ft)" },
 ];
+
