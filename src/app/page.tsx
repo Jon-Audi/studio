@@ -24,7 +24,10 @@ export default function HomePage() {
         <Tabs defaultValue="chainlink" className="w-full">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-2 mb-6 h-auto flex-wrap justify-start">
             <TabsTrigger value="chainlink" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Fence className="mr-2 h-4 w-4" /> Chain-link
+              <Fence className="mr-2 h-4 w-4" /> Chain Link
+            </TabsTrigger>
+            <TabsTrigger value="gatepipe" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Scissors className="mr-2 h-4 w-4" /> Gate Pipe
             </TabsTrigger>
             <TabsTrigger value="vinyl" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <LayoutPanelLeft className="mr-2 h-4 w-4" /> Vinyl
@@ -39,9 +42,6 @@ export default function HomePage() {
               <SplitRailIconTab />
               Split Rail
             </TabsTrigger>
-            <TabsTrigger value="gatepipe" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Scissors className="mr-2 h-4 w-4" /> Gate Pipe
-            </TabsTrigger>
             <TabsTrigger value="unitconverter" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Scale className="mr-2 h-4 w-4" /> Unit Converter
             </TabsTrigger>
@@ -52,6 +52,9 @@ export default function HomePage() {
 
           <TabsContent value="chainlink">
             <ChainlinkCalculatorForm />
+          </TabsContent>
+          <TabsContent value="gatepipe">
+            <PipeCutCalculatorForm />
           </TabsContent>
           <TabsContent value="vinyl">
             <VinylCalculatorForm />
@@ -64,9 +67,6 @@ export default function HomePage() {
           </TabsContent>
            <TabsContent value="splitrail">
             <SplitRailCalculatorForm />
-          </TabsContent>
-          <TabsContent value="gatepipe">
-            <PipeCutCalculatorForm />
           </TabsContent>
           <TabsContent value="unitconverter">
             <UnitConverterForm />

@@ -1,5 +1,6 @@
+
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS, SPLIT_RAIL_POST_SPACING_OPTIONS } from '@/config/constants';
+import { 
+  SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS, 
+  SPLIT_RAIL_POST_SPACING_OPTIONS,
+  GATE_CHOICE_OPTIONS,
+  SINGLE_GATE_WIDTH_OPTIONS,
+  DOUBLE_GATE_WIDTH_OPTIONS
+} from '@/config/constants';
 import type { SplitRailCalculatorInput, SplitRailCalculatorResult } from '@/types';
 import { SplitRailCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -30,13 +37,29 @@ export function SplitRailCalculatorForm() {
       fenceLength: 100,
       numRailsPerSection: SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS[0],
       postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0],
+      gateType: "none",
+      gateWidth: undefined,
     },
   });
+
+  const gateType = form.watch("gateType");
+
+  useEffect(() => {
+    if (gateType === "none" && form.getValues("gateWidth") !== undefined) {
+      form.setValue("gateWidth", undefined);
+    }
+  }, [gateType, form]);
 
   function onSubmit(data: SplitRailCalculatorInput) {
     const calculatedResults = calculateSplitRail(data);
     setResults(calculatedResults);
   }
+  
+  const currentGateWidthOptions = gateType === "single" 
+    ? SINGLE_GATE_WIDTH_OPTIONS 
+    : gateType === "double" 
+    ? DOUBLE_GATE_WIDTH_OPTIONS 
+    : [];
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
@@ -90,6 +113,46 @@ export function SplitRailCalculatorForm() {
                   </FormItem>
                 )}
               />
+               <FormField
+                control={form.control}
+                name="gateType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gate Option</FormLabel>
+                     <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue("gateWidth", undefined); 
+                      }} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select gate type" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {GATE_CHOICE_OPTIONS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {gateType && gateType !== "none" && (
+                <FormField
+                  control={form.control}
+                  name="gateWidth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gate Width</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
+                        <FormControl><SelectTrigger><SelectValue placeholder={`Select ${gateType} gate width`} /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {currentGateWidthOptions.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Calculate Materials</Button>
           </form>

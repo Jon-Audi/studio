@@ -1,7 +1,8 @@
+
 export const FENCE_HEIGHT_OPTIONS = ["3", "4", "5", "6", "7", "8"]; // in feet
 export const FENCE_TYPE_OPTIONS = ["residential", "commercial"];
 export const GATE_FRAME_DIAMETER_OPTIONS = ["1 3/8″", "1 5/8″", "2″"];
-export const GATE_TYPE_OPTIONS = ["Single", "Double"];
+export const GATE_TYPE_OPTIONS = ["Single", "Double"]; // Used by PipeCutCalculator
 
 export const PROJECT_SIZE_OPTIONS = ["Small", "Medium", "Large"];
 
@@ -22,3 +23,22 @@ export const ALUMINUM_PANEL_WIDTH_OPTIONS = ["6", "8"]; // in feet
 // Split Rail Fence Options
 export const SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS = ["2", "3", "4"];
 export const SPLIT_RAIL_POST_SPACING_OPTIONS = ["8", "10"]; // in feet
+
+// Gate Options for general calculators
+export const GATE_CHOICE_OPTIONS = [
+  { value: "none", label: "No Gate" },
+  { value: "single", label: "Single Gate" },
+  { value: "double", label: "Double Gate" },
+];
+
+export const SINGLE_GATE_WIDTH_OPTIONS = [
+  { value: "3", label: "3 ft" },
+  { value: "4", label: "4 ft" },
+  { value: "5", label: "5 ft" },
+];
+
+export const DOUBLE_GATE_WIDTH_OPTIONS = [
+  { value: "6", label: "6 ft (2 x 3ft)" },
+  { value: "8", label: "8 ft (2 x 4ft)" },
+  { value: "10", label: "10 ft (2 x 5ft)" },
+];
