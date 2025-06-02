@@ -31,7 +31,7 @@ export function WoodCalculatorForm() {
     defaultValues: {
       fenceLength: 100,
       fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      postSpacing: WOOD_POST_SPACING_OPTIONS[0],
+      postSpacing: WOOD_POST_SPACING_OPTIONS.includes('8') ? '8' : WOOD_POST_SPACING_OPTIONS[0], // Default to 8'
       picketWidth: PICKET_WIDTH_OPTIONS[0].value,
       numRails: WOOD_NUM_RAILS_OPTIONS[0],
       ends: 2,
