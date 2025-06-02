@@ -42,7 +42,7 @@ export function AppHeader() {
         </a>
         <Link href="/" className="flex items-center">
           <span className="font-bold font-headline sm:inline-block text-xl">
-            Material Estimator Pro
+            Delaware Fence Solutions Pro Estimator
           </span>
         </Link>
         <div className="ml-auto flex items-center space-x-2">

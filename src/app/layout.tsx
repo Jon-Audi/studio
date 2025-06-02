@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/context/theme-provider";
 
 export const metadata: Metadata = {
-  title: 'Material Estimator Pro',
+  title: 'Delaware Fence Solutions Pro Estimator',
   description: 'Estimate materials for your construction projects with ease. Calculators for chain-link, vinyl, wood, aluminum, split rail fences, and more. Features AI-powered recommendations.',
 };
 
