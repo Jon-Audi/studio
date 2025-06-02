@@ -5,9 +5,28 @@ import { DelawareFenceSolutionsLogoIcon } from '@/components/icons/delaware-fenc
 import { Button } from '@/components/ui/button';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/context/theme-provider';
+import { useState, useEffect } from 'react';
 
 export function AppHeader() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    if (mounted) {
+      // setTheme can accept a function to get the current value
+      setTheme(currentTheme => (currentTheme === 'dark' ? 'light' : 'dark'));
+    }
+  };
+
+  // Determine content based on mounted status and theme
+  // For SSR and initial client render (mounted === false), default to 'light' theme representation
+  // (Moon icon visible, so action is to switch to dark mode)
+  const currentAriaLabel = mounted && theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  const currentIcon = mounted && theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,10 +49,12 @@ export function AppHeader() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            onClick={toggleTheme}
+            aria-label={currentAriaLabel}
+            // Optionally disable until mounted to prevent interaction before theme is fully resolved client-side
+            // disabled={!mounted} 
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {currentIcon}
           </Button>
         </div>
       </div>
