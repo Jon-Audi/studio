@@ -28,7 +28,7 @@ export function VinylCalculatorForm() {
     defaultValues: {
       fenceLength: 100,
       fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      panelWidth: VINYL_PANEL_WIDTH_OPTIONS[1], 
+      panelWidth: VINYL_PANEL_WIDTH_OPTIONS.includes('8') ? '8' : VINYL_PANEL_WIDTH_OPTIONS[0], 
       ends: 2,
       corners: 0,
       singleGates: [],
@@ -227,7 +227,21 @@ export function VinylCalculatorForm() {
 
         {results && (
           <div className="mt-8 space-y-4">
-            <ResultsCard title="Vinyl Fence Results" data={results} />
+            <ResultsCard title="Vinyl Fence Results" data={{
+              'Number of Panels': results.numPanels,
+              'Line Posts': results.numLinePosts,
+              'Ends': results.userSpecifiedEnds,
+              'Corners': results.userSpecifiedCorners,
+              'Gate Posts': results.gatePosts,
+              'Total Posts': results.totalPosts,
+              'Post Caps': results.postCaps,
+              'SS PVC Hinges': results.ssPvcHinges,
+              'SS PVC Latches': results.ssPvcLatches,
+              'SS Drop Rods': results.ssDropRods,
+              'Total Gate Openings': results.totalGateOpenings,
+              'Total Gate Linear Footage': results.totalGateLinearFootage,
+              Notes: results.notes,
+            }} />
           </div>
         )}
       </CardContent>

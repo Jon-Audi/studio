@@ -244,8 +244,18 @@ export function WoodCalculatorForm() {
         {results && (
           <div className="mt-8 space-y-4">
             <ResultsCard title="Wood Fence Results" data={{
-                ...results,
-                totalRailLength: results.totalRailLength ? `${results.totalRailLength} ft` : undefined
+                'Number of Sections': results.numSections,
+                'Line Posts': results.numLinePosts,
+                'Ends': results.userSpecifiedEnds,
+                'Corners': results.userSpecifiedCorners,
+                'Gate Posts': results.gatePosts,
+                'Total Posts': results.totalPosts,
+                'Number of Pickets': results.numPickets,
+                'Total Rail Length (ft)': results.totalRailLength,
+                'Bags of Concrete': results.bagsOfConcrete,
+                'Total Gate Openings': results.totalGateOpenings,
+                'Total Gate Linear Footage': results.totalGateLinearFootage,
+                Notes: results.notes,
             }} />
           </div>
         )}

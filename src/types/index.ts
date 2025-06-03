@@ -60,7 +60,8 @@ export type VinylCalculatorInput = z.infer<typeof VinylCalculatorSchema>;
 export interface VinylCalculatorResult {
   numPanels?: number;
   numLinePosts?: number;
-  numTerminalPosts?: number;
+  userSpecifiedEnds?: number;
+  userSpecifiedCorners?: number;
   gatePosts?: number;
   totalPosts?: number;
   postCaps?: number;
@@ -87,7 +88,8 @@ export type WoodCalculatorInput = z.infer<typeof WoodCalculatorSchema>;
 export interface WoodCalculatorResult {
   numSections?: number;
   numLinePosts?: number;
-  numTerminalPosts?: number;
+  userSpecifiedEnds?: number;
+  userSpecifiedCorners?: number;
   totalPosts?: number;
   numPickets?: number;
   totalRailLength?: number;
@@ -111,7 +113,8 @@ export type AluminumCalculatorInput = z.infer<typeof AluminumCalculatorSchema>;
 export interface AluminumCalculatorResult {
   numPanels?: number;
   numLinePosts?: number;
-  numTerminalPosts?: number;
+  userSpecifiedEnds?: number;
+  userSpecifiedCorners?: number;
   totalPosts?: number;
   postCaps?: number;
   gatePosts?: number;

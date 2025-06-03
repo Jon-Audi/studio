@@ -211,7 +211,18 @@ export function AluminumCalculatorForm() {
 
         {results && (
           <div className="mt-8 space-y-4">
-            <ResultsCard title="Aluminum Fence Results" data={results} />
+            <ResultsCard title="Aluminum Fence Results" data={{
+              'Number of Panels': results.numPanels,
+              'Line Posts': results.numLinePosts,
+              'Ends': results.userSpecifiedEnds,
+              'Corners': results.userSpecifiedCorners,
+              'Gate Posts': results.gatePosts,
+              'Total Posts': results.totalPosts,
+              'Post Caps': results.postCaps,
+              'Total Gate Openings': results.totalGateOpenings,
+              'Total Gate Linear Footage': results.totalGateLinearFootage,
+              Notes: results.notes,
+            }} />
           </div>
         )}
       </CardContent>
