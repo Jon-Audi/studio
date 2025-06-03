@@ -23,6 +23,8 @@ export interface ChainlinkCalculatorResult {
   tensionBands?: number;
   nutsAndBolts?: number;
   pipeWeight: string;
+  userSpecifiedEnds?: number;
+  userSpecifiedCorners?: number;
 }
 
 export const PipeCutCalculatorSchema = z.object({

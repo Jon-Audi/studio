@@ -1,3 +1,4 @@
+
 "use client";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -13,7 +14,7 @@ import type { ChainlinkCalculatorInput, ChainlinkCalculatorResult } from '@/type
 import { ChainlinkCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
 import { calculateChainlink } from '@/lib/calculators';
-import { Fence, CornerRightUp, PilcrowSquare } from 'lucide-react';
+import { Fence } from 'lucide-react';
 
 export function ChainlinkCalculatorForm() {
   const [results, setResults] = useState<ChainlinkCalculatorResult | null>(null);
@@ -135,7 +136,25 @@ export function ChainlinkCalculatorForm() {
 
         {results && (
           <div className="mt-8 space-y-4">
-            <ResultsCard title="Calculation Results" data={results} />
+            <ResultsCard 
+              title="Chain-link Fence Results" 
+              data={{
+                'Line Posts': results.interiorLinePosts > 0 ? results.interiorLinePosts : undefined,
+                'Ends': results.userSpecifiedEnds,
+                'Corners': results.userSpecifiedCorners,
+                'Post Caps (for ends/corners)': results.postCaps,
+                'Brace Bands': results.braceBands,
+                'Tension Bars': results.tensionBars,
+                'Tension Bands': results.tensionBands,
+                'Nuts & Bolts': results.nutsAndBolts,
+                'Loop Caps (for line posts)': results.loopCaps > 0 ? results.loopCaps : undefined,
+                'Fabric Footage (ft)': results.fabricFootage,
+                'Fabric Type': results.fabricType,
+                'Top Rail Sticks': results.topRailSticks,
+                'Tie Wires': results.tieWires,
+                'Pipe Weight': results.pipeWeight,
+              }} 
+            />
           </div>
         )}
       </CardContent>
