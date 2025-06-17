@@ -14,10 +14,12 @@ import {
   SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
   SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
 } from '@/config/constants';
-import type { SplitRailCalculatorInput, SplitRailCalculatorResult } from '@/types';
+import type { SplitRailCalculatorInput, SplitRailCalculatorResult, FullEstimateData } from '@/types';
 import { SplitRailCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
 import { calculateSplitRail } from '@/lib/calculators';
+import { sendEstimateToInvoicingService } from '@/lib/actions';
+import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 const SplitRailIcon = () => (
@@ -30,6 +32,8 @@ const SplitRailIcon = () => (
 
 export function SplitRailCalculatorForm() {
   const [results, setResults] = useState<SplitRailCalculatorResult | null>(null);
+  const [formInputs, setFormInputs] = useState<SplitRailCalculatorInput | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<SplitRailCalculatorInput>({
     resolver: zodResolver(SplitRailCalculatorSchema),
@@ -55,10 +59,37 @@ export function SplitRailCalculatorForm() {
   });
 
   function onSubmit(data: SplitRailCalculatorInput) {
-    const dataWithFixedPostSpacing = { ...data, postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0].value };
+    setFormInputs(data);
+    // Ensure postSpacing is explicitly set, even if the field is disabled, to avoid zod errors if it's somehow undefined.
+    const dataWithFixedPostSpacing = { ...data, postSpacing: data.postSpacing || SPLIT_RAIL_POST_SPACING_OPTIONS[0].value };
     const calculatedResults = calculateSplitRail(dataWithFixedPostSpacing);
     setResults(calculatedResults);
   }
+
+  const handleSendToInvoice = async (estimateData: FullEstimateData) => {
+    const response = await sendEstimateToInvoicingService(estimateData);
+    if (response.success) {
+      toast({
+        title: "Success",
+        description: response.message + (response.quoteId ? ` Quote ID: ${response.quoteId}` : ''),
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: response.message,
+        variant: "destructive",
+      });
+    }
+    return response;
+  };
+
+  const fullEstimateData: FullEstimateData | undefined = formInputs && results ? {
+    calculatorType: "Split Rail",
+    inputs: formInputs,
+    results: results,
+    timestamp: new Date().toISOString(),
+  } : undefined;
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
@@ -146,7 +177,7 @@ export function SplitRailCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS[0].value}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
                           <SelectContent>{SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
@@ -185,7 +216,7 @@ export function SplitRailCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS[0].value}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
                           <SelectContent>{SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
@@ -220,11 +251,28 @@ export function SplitRailCalculatorForm() {
 
         {results && (
           <div className="mt-8 space-y-4">
-            <ResultsCard title="Split Rail Fence Results" data={results} />
+            <ResultsCard 
+              title="Split Rail Fence Results" 
+              data={{
+                'Number of Sections': results.numSections,
+                'Total Posts': results.numPosts,
+                'Rails': results.numRails,
+                'Ends': results.userSpecifiedEnds,
+                'Corners': results.userSpecifiedCorners,
+                'Gate Posts': results.gatePosts,
+                'Total Gate Openings': results.totalGateOpenings,
+                'Total Gate Linear Footage': results.totalGateLinearFootage,
+                'Screw Hook & Eyes Sets': results.screwHookAndEyesSets,
+                'Loop Latches': results.loopLatches,
+                'Wood Drop Rods': results.woodDropRods,
+                Notes: results.notes,
+              }}
+              onSendToInvoice={handleSendToInvoice}
+              fullEstimateData={fullEstimateData}
+            />
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
-

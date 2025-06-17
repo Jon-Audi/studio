@@ -7,13 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import type { LakelandTwoCalculatorInput, LakelandTwoCalculatorResult } from '@/types';
+import type { LakelandTwoCalculatorInput, LakelandTwoCalculatorResult, FullEstimateData } from '@/types';
 import { LakelandTwoCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
+import { sendEstimateToInvoicingService } from '@/lib/actions';
+import { useToast } from "@/hooks/use-toast";
 import { Layers } from 'lucide-react';
 
 export function LakelandTwoCalculatorForm() {
   const [results, setResults] = useState<LakelandTwoCalculatorResult | null>(null);
+  const [formInputs, setFormInputs] = useState<LakelandTwoCalculatorInput | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<LakelandTwoCalculatorInput>({
     resolver: zodResolver(LakelandTwoCalculatorSchema),
@@ -23,6 +27,7 @@ export function LakelandTwoCalculatorForm() {
   });
 
   function onSubmit(data: LakelandTwoCalculatorInput) {
+    setFormInputs(data);
     const numSections = Number(data.numSections);
     setResults({
       pickets: numSections * 13,
@@ -30,6 +35,31 @@ export function LakelandTwoCalculatorForm() {
       uChannels: numSections * 2,
     });
   }
+
+  const handleSendToInvoice = async (estimateData: FullEstimateData) => {
+    const response = await sendEstimateToInvoicingService(estimateData);
+    if (response.success) {
+      toast({
+        title: "Success",
+        description: response.message + (response.quoteId ? ` Quote ID: ${response.quoteId}` : ''),
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: response.message,
+        variant: "destructive",
+      });
+    }
+    return response;
+  };
+  
+  const fullEstimateData: FullEstimateData | undefined = formInputs && results ? {
+    calculatorType: "Lakeland 2 Section",
+    inputs: formInputs,
+    results: results,
+    timestamp: new Date().toISOString(),
+  } : undefined;
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-xl">
@@ -69,6 +99,8 @@ export function LakelandTwoCalculatorForm() {
                 'Rails': results.rails,
                 'U-Channels': results.uChannels,
               }} 
+              onSendToInvoice={handleSendToInvoice}
+              fullEstimateData={fullEstimateData}
             />
           </div>
         )}

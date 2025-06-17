@@ -5,19 +5,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { FENCE_HEIGHT_OPTIONS, FENCE_TYPE_OPTIONS } from '@/config/constants';
-import type { ChainlinkCalculatorInput, ChainlinkCalculatorResult } from '@/types';
+import type { ChainlinkCalculatorInput, ChainlinkCalculatorResult, FullEstimateData } from '@/types';
 import { ChainlinkCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
 import { calculateChainlink } from '@/lib/calculators';
+import { sendEstimateToInvoicingService } from '@/lib/actions';
+import { useToast } from "@/hooks/use-toast";
 import { Fence } from 'lucide-react';
 
 export function ChainlinkCalculatorForm() {
   const [results, setResults] = useState<ChainlinkCalculatorResult | null>(null);
+  const [formInputs, setFormInputs] = useState<ChainlinkCalculatorInput | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<ChainlinkCalculatorInput>({
     resolver: zodResolver(ChainlinkCalculatorSchema),
@@ -31,9 +34,35 @@ export function ChainlinkCalculatorForm() {
   });
 
   function onSubmit(data: ChainlinkCalculatorInput) {
+    setFormInputs(data);
     const calculatedResults = calculateChainlink(data);
     setResults(calculatedResults);
   }
+
+  const handleSendToInvoice = async (estimateData: FullEstimateData) => {
+    const response = await sendEstimateToInvoicingService(estimateData);
+    if (response.success) {
+      toast({
+        title: "Success",
+        description: response.message + (response.quoteId ? ` Quote ID: ${response.quoteId}` : ''),
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: response.message,
+        variant: "destructive",
+      });
+    }
+    return response;
+  };
+
+  const fullEstimateData: FullEstimateData | undefined = formInputs && results ? {
+    calculatorType: "Chainlink",
+    inputs: formInputs,
+    results: results,
+    timestamp: new Date().toISOString(),
+  } : undefined;
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
@@ -139,21 +168,23 @@ export function ChainlinkCalculatorForm() {
             <ResultsCard 
               title="Chain-link Fence Results" 
               data={{
-                'Line Posts': results.interiorLinePosts > 0 ? results.interiorLinePosts : undefined,
+                'Line Posts': results.interiorLinePosts,
                 'Ends': results.userSpecifiedEnds,
                 'Corners': results.userSpecifiedCorners,
-                'Post Caps (for ends/corners)': results.postCaps,
+                'Post Caps': results.postCaps,
                 'Brace Bands': results.braceBands,
                 'Tension Bars': results.tensionBars,
                 'Tension Bands': results.tensionBands,
                 'Nuts & Bolts': results.nutsAndBolts,
-                'Loop Caps (for line posts)': results.loopCaps > 0 ? results.loopCaps : undefined,
+                'Loop Caps': results.loopCaps,
                 'Fabric Footage (ft)': results.fabricFootage,
                 'Fabric Type': results.fabricType,
                 'Top Rail Sticks': results.topRailSticks,
                 'Tie Wires': results.tieWires,
                 'Pipe Weight': results.pipeWeight,
-              }} 
+              }}
+              onSendToInvoice={handleSendToInvoice}
+              fullEstimateData={fullEstimateData}
             />
           </div>
         )}

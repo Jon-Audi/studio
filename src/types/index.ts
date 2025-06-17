@@ -11,12 +11,12 @@ export const ChainlinkCalculatorSchema = z.object({
 export type ChainlinkCalculatorInput = z.infer<typeof ChainlinkCalculatorSchema>;
 
 export interface ChainlinkCalculatorResult {
-  interiorLinePosts: number;
+  interiorLinePosts?: number;
   fabricType: string;
   fabricFootage: number;
-  topRailSticks: number;
-  tieWires: number;
-  loopCaps: number;
+  topRailSticks?: number;
+  tieWires?: number;
+  loopCaps?: number;
   postCaps?: number;
   braceBands?: number;
   tensionBars?: number;
@@ -44,7 +44,7 @@ export interface PipeCutCalculatorResult {
 }
 
 const GateEntrySchema = z.object({
-  quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+  quantity: z.coerce.number().min(1, "Quantity must be at least 1").default(1),
   width: z.string().min(1, "Gate width is required"),
 });
 export type GateEntry = z.infer<typeof GateEntrySchema>;
@@ -165,4 +165,12 @@ export interface LakelandTwoCalculatorResult {
   pickets: number;
   rails: number;
   uChannels: number;
+}
+
+// Generic type for sending data to invoicing
+export interface FullEstimateData {
+  calculatorType: string;
+  inputs: any; // Could be more specific with a union of all input types
+  results: any; // Could be more specific with a union of all result types
+  timestamp: string;
 }

@@ -1,22 +1,26 @@
+
 "use client";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS } from '@/config/constants';
-import type { PipeCutCalculatorInput, PipeCutCalculatorResult } from '@/types';
+import type { PipeCutCalculatorInput, PipeCutCalculatorResult, FullEstimateData } from '@/types';
 import { PipeCutCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
 import { calculatePipeCuts } from '@/lib/calculators';
+import { sendEstimateToInvoicingService } from '@/lib/actions';
+import { useToast } from "@/hooks/use-toast";
 import { Scissors, DoorOpen } from 'lucide-react';
 
 export function PipeCutCalculatorForm() {
   const [results, setResults] = useState<PipeCutCalculatorResult | null>(null);
+  const [formInputs, setFormInputs] = useState<PipeCutCalculatorInput | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<PipeCutCalculatorInput>({
     resolver: zodResolver(PipeCutCalculatorSchema),
@@ -29,9 +33,35 @@ export function PipeCutCalculatorForm() {
   });
 
   function onSubmit(data: PipeCutCalculatorInput) {
+    setFormInputs(data);
     const calculatedResults = calculatePipeCuts(data);
     setResults(calculatedResults);
   }
+
+  const handleSendToInvoice = async (estimateData: FullEstimateData) => {
+    const response = await sendEstimateToInvoicingService(estimateData);
+    if (response.success) {
+      toast({
+        title: "Success",
+        description: response.message + (response.quoteId ? ` Quote ID: ${response.quoteId}` : ''),
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: response.message,
+        variant: "destructive",
+      });
+    }
+    return response;
+  };
+
+  const fullEstimateData: FullEstimateData | undefined = formInputs && results ? {
+    calculatorType: "Gate Pipe Cut",
+    inputs: formInputs,
+    results: results,
+    timestamp: new Date().toISOString(),
+  } : undefined;
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
@@ -129,6 +159,8 @@ export function PipeCutCalculatorForm() {
                 'Number of Gate Posts': results.postCount,
                 'Post Spacing': `${results.postSpacing} inches`,
               }}
+              onSendToInvoice={handleSendToInvoice}
+              fullEstimateData={fullEstimateData}
             />
           </div>
         )}

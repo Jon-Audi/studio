@@ -14,14 +14,18 @@ import {
   SINGLE_GATE_WIDTH_OPTIONS,
   DOUBLE_GATE_WIDTH_OPTIONS
 } from '@/config/constants';
-import type { AluminumCalculatorInput, AluminumCalculatorResult } from '@/types';
+import type { AluminumCalculatorInput, AluminumCalculatorResult, FullEstimateData } from '@/types';
 import { AluminumCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
 import { calculateAluminum } from '@/lib/calculators';
+import { sendEstimateToInvoicingService } from '@/lib/actions';
+import { useToast } from "@/hooks/use-toast";
 import { BarChartHorizontalBig, PlusCircle, Trash2 } from 'lucide-react';
 
 export function AluminumCalculatorForm() {
   const [results, setResults] = useState<AluminumCalculatorResult | null>(null);
+  const [formInputs, setFormInputs] = useState<AluminumCalculatorInput | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<AluminumCalculatorInput>({
     resolver: zodResolver(AluminumCalculatorSchema),
@@ -47,9 +51,35 @@ export function AluminumCalculatorForm() {
   });
 
   function onSubmit(data: AluminumCalculatorInput) {
+    setFormInputs(data);
     const calculatedResults = calculateAluminum(data);
     setResults(calculatedResults);
   }
+
+  const handleSendToInvoice = async (estimateData: FullEstimateData) => {
+    const response = await sendEstimateToInvoicingService(estimateData);
+    if (response.success) {
+      toast({
+        title: "Success",
+        description: response.message + (response.quoteId ? ` Quote ID: ${response.quoteId}` : ''),
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: response.message,
+        variant: "destructive",
+      });
+    }
+    return response;
+  };
+
+  const fullEstimateData: FullEstimateData | undefined = formInputs && results ? {
+    calculatorType: "Aluminum",
+    inputs: formInputs,
+    results: results,
+    timestamp: new Date().toISOString(),
+  } : undefined;
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
@@ -108,7 +138,7 @@ export function AluminumCalculatorForm() {
                 name="ends"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Ends (Fence Run)</FormLabel>
+                    <FormLabel>Number of Ends</FormLabel>
                     <FormControl><Input type="number" placeholder="e.g., 2" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,7 +149,7 @@ export function AluminumCalculatorForm() {
                 name="corners"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Corners (Fence Run)</FormLabel>
+                    <FormLabel>Number of Corners</FormLabel>
                     <FormControl><Input type="number" placeholder="e.g., 0" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -137,7 +167,7 @@ export function AluminumCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || SINGLE_GATE_WIDTH_OPTIONS[0].value}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
                           <SelectContent>{SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
@@ -176,7 +206,7 @@ export function AluminumCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DOUBLE_GATE_WIDTH_OPTIONS[0].value}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
                           <SelectContent>{DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
@@ -222,7 +252,10 @@ export function AluminumCalculatorForm() {
               'Total Gate Openings': results.totalGateOpenings,
               'Total Gate Linear Footage': results.totalGateLinearFootage,
               Notes: results.notes,
-            }} />
+            }} 
+            onSendToInvoice={handleSendToInvoice}
+            fullEstimateData={fullEstimateData}
+            />
           </div>
         )}
       </CardContent>
