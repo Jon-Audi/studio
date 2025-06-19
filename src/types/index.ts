@@ -67,7 +67,7 @@ export interface VinylCalculatorResult {
   gatePosts?: number;
   totalPosts?: number;
   postCaps?: number;
-  ssPvcHinges?: number; 
+  ssPvcHinges?: number;
   ssPvcLatches?: number;
   ssDropRods?: number;
   totalGateOpenings?: number;
@@ -94,6 +94,7 @@ export interface WoodCalculatorResult {
   userSpecifiedCorners?: number;
   totalPosts?: number;
   numPickets?: number;
+  picketsPerSection?: number; // Added for pickets per section calculation
   totalRailLength?: number;
   bagsOfConcrete?: number;
   gatePosts?: number;
@@ -128,7 +129,7 @@ export interface AluminumCalculatorResult {
 export const SplitRailCalculatorSchema = z.object({
   fenceLength: z.coerce.number().min(1, "Fence length must be positive"),
   numRailsPerSection: z.string().min(1, "Rails per section is required"),
-  postSpacing: z.string().min(1, "Post spacing is required"), 
+  postSpacing: z.string().min(1, "Post spacing is required"),
   ends: z.coerce.number().min(0, "Ends must be non-negative").optional().default(2),
   corners: z.coerce.number().min(0, "Corners must be non-negative").optional().default(0),
   singleGates: z.array(GateEntrySchema).optional().default([]),
@@ -137,7 +138,7 @@ export const SplitRailCalculatorSchema = z.object({
 export type SplitRailCalculatorInput = z.infer<typeof SplitRailCalculatorSchema>;
 export interface SplitRailCalculatorResult {
   numSections?: number;
-  numPosts?: number; 
+  numPosts?: number;
   numRails?: number;
   userSpecifiedEnds?: number;
   userSpecifiedCorners?: number;

@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { 
-  FENCE_HEIGHT_OPTIONS, 
-  WOOD_POST_SPACING_OPTIONS, 
-  PICKET_WIDTH_OPTIONS, 
+import {
+  FENCE_HEIGHT_OPTIONS,
+  WOOD_POST_SPACING_OPTIONS,
+  PICKET_WIDTH_OPTIONS,
   WOOD_NUM_RAILS_OPTIONS,
   SINGLE_GATE_WIDTH_OPTIONS,
   DOUBLE_GATE_WIDTH_OPTIONS
@@ -227,7 +227,7 @@ export function WoodCalculatorForm() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Single Gate
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               <FormLabel>Double Gates</FormLabel>
               {doubleGateFields.map((field, index) => (
@@ -280,13 +280,14 @@ export function WoodCalculatorForm() {
                 'Corners': results.userSpecifiedCorners,
                 'Gate Posts': results.gatePosts,
                 'Total Posts': results.totalPosts,
-                'Number of Pickets': results.numPickets,
+                'Total Pickets': results.numPickets,
+                'Pickets per Section': results.picketsPerSection,
                 'Total Rail Length (ft)': results.totalRailLength,
                 'Bags of Concrete': results.bagsOfConcrete,
                 'Total Gate Openings': results.totalGateOpenings,
                 'Total Gate Linear Footage': results.totalGateLinearFootage,
                 Notes: results.notes,
-            }} 
+            }}
             onSendToInvoice={handleSendToInvoice}
             fullEstimateData={fullEstimateData}
             />
