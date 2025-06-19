@@ -42,14 +42,14 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
 
   let result: ChainlinkCalculatorResult = {
     interiorLinePosts: interiorLinePosts > 0 ? interiorLinePosts : undefined,
-    userSpecifiedEnds: numericEnds >= 0 ? numericEnds : undefined,
-    userSpecifiedCorners: numericCorners >= 0 ? numericCorners : undefined,
     fabricType,
     fabricFootage,
     topRailSticks: topRailSticks > 0 ? topRailSticks : undefined,
     tieWires: tieWires > 0 ? tieWires : undefined,
     loopCaps,
     pipeWeight,
+    userSpecifiedEnds: numericEnds >= 0 ? numericEnds : undefined,
+    userSpecifiedCorners: numericCorners >= 0 ? numericCorners : undefined,
   };
 
   const terminalPosts = numericEnds + numericCorners;
@@ -363,3 +363,4 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
 
   return results;
 }
+
