@@ -234,7 +234,10 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
   const totalFencePosts = numLinePostsFence + numTerminalPostsSum;
   const totalPosts = totalFencePosts + gateData.calculatedGatePosts;
   const numPickets = fenceLengthForCalc > 0 ? Math.ceil((fenceLengthForCalc * 12) / numericPicketWidth) : 0;
+  
   const totalRailLength = numSections * numericPostSpacing * numericNumRails;
+  const numBackers = totalRailLength > 0 ? Math.ceil(totalRailLength / 8) : undefined; // Assuming 8ft backers
+
   const bagsOfConcrete = totalPosts > 0 ? totalPosts : undefined;
 
   const picketsPerSection = numericPostSpacing > 0 && numericPicketWidth > 0
@@ -250,6 +253,7 @@ export function calculateWood(data: WoodCalculatorInput): WoodCalculatorResult {
     numPickets: numPickets > 0 ? numPickets : undefined,
     picketsPerSection: picketsPerSection,
     totalRailLength: totalRailLength > 0 ? totalRailLength : undefined,
+    numBackers: numBackers,
     bagsOfConcrete,
   };
 
@@ -363,4 +367,3 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
 
   return results;
 }
-

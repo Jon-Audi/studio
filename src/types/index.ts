@@ -94,8 +94,9 @@ export interface WoodCalculatorResult {
   userSpecifiedCorners?: number;
   totalPosts?: number;
   numPickets?: number;
-  picketsPerSection?: number; // Added for pickets per section calculation
+  picketsPerSection?: number;
   totalRailLength?: number;
+  numBackers?: number; // Number of 8ft backers
   bagsOfConcrete?: number;
   gatePosts?: number;
   totalGateOpenings?: number;
