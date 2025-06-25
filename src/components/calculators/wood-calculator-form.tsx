@@ -283,7 +283,7 @@ export function WoodCalculatorForm() {
                 'Total Pickets': results.numPickets,
                 'Pickets per Section': results.picketsPerSection,
                 'Total Rail Length (ft)': results.totalRailLength,
-                'Number of Backers (2x4x8\')': results.numBackers,
+                "Number of Backers (2x4x8')": results.numBackers,
                 'Bags of Concrete': results.bagsOfConcrete,
                 'Total Gate Openings': results.totalGateOpenings,
                 'Total Gate Linear Footage': results.totalGateLinearFootage,
