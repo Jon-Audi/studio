@@ -6,6 +6,7 @@ import type {
   WoodCalculatorInput, WoodCalculatorResult,
   AluminumCalculatorInput, AluminumCalculatorResult,
   SplitRailCalculatorInput, SplitRailCalculatorResult,
+  BallFieldCalculatorInput, BallFieldCalculatorResult,
   GateEntry
 } from '@/types';
 
@@ -366,4 +367,89 @@ export function calculateSplitRail(data: SplitRailCalculatorInput): SplitRailCal
   };
 
   return results;
+}
+
+export function calculateBallField(data: BallFieldCalculatorInput): BallFieldCalculatorResult {
+    const { backstopHeight, backstopWidth, sidelineLength, homerunLength, fenceHeight } = data;
+    const numBackstopHeight = Number(backstopHeight);
+    const numBackstopWidth = Number(backstopWidth);
+    const numSidelineLength = Number(sidelineLength);
+    const numHomerunLength = Number(homerunLength);
+    const numFenceHeight = Number(fenceHeight);
+
+    const postSpacing = 10;
+    const fabricRollLength = 50;
+
+    // Backstop Calculations
+    // A typical backstop has a center section and two 45-degree wings.
+    // We'll assume the wings are the same width as the center for simplicity.
+    const backstopWingLength = numBackstopWidth;
+    const totalBackstopFootage = numBackstopWidth + (2 * backstopWingLength);
+
+    const backstopMainPosts = 4; // 3" posts for corners and braces
+    const backstopWingPosts = Math.ceil(backstopWingLength / postSpacing) * 2; // 2.5" posts
+    const backstopFabricRolls = Math.ceil(totalBackstopFootage / fabricRollLength);
+    const backstopTopRail = Math.ceil(totalBackstopFootage / 21);
+    const backstopBraceRail = backstopMainPosts * 2;
+    const backstopBraceBands = backstopMainPosts * 4; // Top and bottom brace
+    const backstopTensionBars = 4; // Ends of the two wings
+    const backstopTensionBands = backstopTensionBars * numBackstopHeight;
+    const backstopPostCaps = backstopMainPosts + backstopWingPosts;
+    const backstopLoopCaps = backstopWingPosts;
+    const backstopRailEnds = backstopMainPosts * 2;
+    const backstopTieWires = Math.ceil(totalBackstopFootage * 1.5);
+    const backstopTensionWireCoils = Math.ceil((totalBackstopFootage * 3) / 500); // Top, middle, bottom
+    const backstopHogRings = backstopTieWires; // Approximation
+
+    // Fence Line Calculations
+    const totalFenceFootage = (numSidelineLength * 2) + numHomerunLength;
+    const fenceSections = Math.ceil(totalFenceFootage / postSpacing);
+    const fenceLinePosts = Math.max(0, fenceSections - 1);
+    const fenceTerminalPosts = 2; // Where sidelines meet homerun fence
+    const fenceTotalPosts = fenceLinePosts + fenceTerminalPosts;
+    
+    const fenceFabricRolls = Math.ceil(totalFenceFootage / fabricRollLength);
+    const fenceTopRail = Math.ceil(totalFenceFootage / 21);
+    const fenceBraceBands = fenceTerminalPosts * 2;
+    const fenceTensionBars = fenceTerminalPosts;
+    const fenceTensionBands = fenceTensionBars * numFenceHeight;
+    const fencePostCaps = fenceTotalPosts;
+    const fenceLoopCaps = fenceLinePosts;
+    const fenceRailEnds = fenceTerminalPosts;
+    const fenceTieWires = Math.ceil(totalFenceFootage * 1.5);
+    const fenceTensionWireCoils = Math.ceil((totalFenceFootage * 3) / 500);
+    const fenceHogRings = fenceTieWires;
+
+    return {
+        // Backstop
+        backstopMainPosts,
+        backstopWingPosts,
+        backstopFabricRolls,
+        backstopTopRail,
+        backstopBraceRail,
+        backstopBraceBands,
+        backstopTensionBands,
+        backstopTensionBars,
+        backstopPostCaps,
+        backstopLoopCaps,
+        backstopRailEnds,
+        backstopTieWires,
+        backstopHogRings,
+        backstopTensionWireCoils,
+        // Fence Lines
+        fenceLinePosts,
+        fenceTerminalPosts,
+        fenceTotalPosts,
+        fenceFabricRolls,
+        fenceTopRail,
+        fenceBraceBands,
+        fenceTensionBands,
+        fenceTensionBars,
+        fencePostCaps,
+        fenceLoopCaps,
+        fenceRailEnds,
+        fenceTieWires,
+        fenceHogRings,
+        fenceTensionWireCoils,
+    };
 }

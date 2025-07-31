@@ -10,7 +10,8 @@ import { SplitRailCalculatorForm } from '@/components/calculators/split-rail-cal
 import { PipeCutCalculatorForm } from '@/components/calculators/pipe-cut-calculator-form';
 import { UnitConverterForm } from '@/components/tools/unit-converter-form';
 import { LakelandTwoCalculatorForm } from '@/components/calculators/lakeland-two-calculator-form';
-import { Fence, Scissors, Scale, TreePine, LayoutPanelLeft, BarChartHorizontalBig, Layers, Wrench } from 'lucide-react';
+import { BallFieldCalculatorForm } from '@/components/calculators/ball-field-calculator-form';
+import { Fence, Scissors, Scale, TreePine, LayoutPanelLeft, BarChartHorizontalBig, Layers, Wrench, CircleDot } from 'lucide-react';
 
 const SplitRailIconTab = () => (
  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4 lucide lucide-grip-horizontal"><circle cx="12" cy="9" r="1"></circle><circle cx="19" cy="9" r="1"></circle><circle cx="5" cy="9" r="1"></circle><circle cx="12" cy="15" r="1"></circle><circle cx="19" cy="15" r="1"></circle><circle cx="5" cy="15" r="1"></circle></svg>
@@ -22,7 +23,7 @@ export default function HomePage() {
       <AppHeader />
       <main className="flex-grow container mx-auto px-4 py-8">
         <Tabs defaultValue="chainlink" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 mb-6 h-auto flex-wrap justify-start">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-2 mb-6 h-auto flex-wrap justify-start">
             <TabsTrigger value="chainlink" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Fence className="mr-2 h-4 w-4" /> Chain Link
             </TabsTrigger>
@@ -41,6 +42,9 @@ export default function HomePage() {
             <TabsTrigger value="splitrail" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <SplitRailIconTab />
               Split Rail
+            </TabsTrigger>
+            <TabsTrigger value="ballfield" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <CircleDot className="mr-2 h-4 w-4" /> Ball Field
             </TabsTrigger>
             <TabsTrigger value="tools" className="flex-grow data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Wrench className="mr-2 h-4 w-4" /> Tools
@@ -64,6 +68,9 @@ export default function HomePage() {
           </TabsContent>
            <TabsContent value="splitrail">
             <SplitRailCalculatorForm />
+          </TabsContent>
+          <TabsContent value="ballfield">
+            <BallFieldCalculatorForm />
           </TabsContent>
           <TabsContent value="tools">
             <div className="space-y-12">

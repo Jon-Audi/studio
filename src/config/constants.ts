@@ -49,3 +49,7 @@ export const DOUBLE_GATE_WIDTH_OPTIONS = [ // For Vinyl, Wood, Aluminum
   { value: "10", label: "10 ft (2 x 5ft)" },
 ];
 
+// Ball Field Calculator Options
+export const BALL_FIELD_BACKSTOP_HEIGHT_OPTIONS = ["10", "12", "14", "16"];
+export const BALL_FIELD_BACKSTOP_WIDTH_OPTIONS = ["10", "20", "30"];
+export const BALL_FIELD_FENCE_HEIGHT_OPTIONS = ["4", "6", "8", "10"];

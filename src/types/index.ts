@@ -152,6 +152,49 @@ export interface SplitRailCalculatorResult {
   notes?: string;
 }
 
+export const BallFieldCalculatorSchema = z.object({
+  backstopHeight: z.string().min(1, "Backstop height is required"),
+  backstopWidth: z.string().min(1, "Backstop width is required"),
+  sidelineLength: z.coerce.number().min(1, "Sideline length must be positive"),
+  homerunLength: z.coerce.number().min(1, "Homerun fence length must be positive"),
+  fenceHeight: z.string().min(1, "Fence height is required"),
+});
+export type BallFieldCalculatorInput = z.infer<typeof BallFieldCalculatorSchema>;
+
+export interface BallFieldCalculatorResult {
+  // Backstop
+  backstopMainPosts: number;
+  backstopWingPosts: number;
+  backstopFabricRolls: number;
+  backstopTopRail: number;
+  backstopBraceRail: number;
+  backstopBraceBands: number;
+  backstopTensionBands: number;
+  backstopTensionBars: number;
+  backstopPostCaps: number;
+  backstopLoopCaps: number;
+  backstopRailEnds: number;
+  backstopTieWires: number;
+  backstopHogRings: number;
+  backstopTensionWireCoils: number;
+  // Fence Lines
+  fenceLinePosts: number;
+  fenceTerminalPosts: number;
+  fenceTotalPosts: number;
+  fenceFabricRolls: number;
+  fenceTopRail: number;
+  fenceBraceBands: number;
+  fenceTensionBands: number;
+  fenceTensionBars: number;
+  fencePostCaps: number;
+  fenceLoopCaps: number;
+  fenceRailEnds: number;
+  fenceTieWires: number;
+  fenceHogRings: number;
+  fenceTensionWireCoils: number;
+}
+
+
 export const UnitConverterSchema = z.object({
   value: z.coerce.number(),
   fromUnit: z.string(),
