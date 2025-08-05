@@ -1,8 +1,27 @@
 
 export const FENCE_HEIGHT_OPTIONS = ["3", "4", "5", "6", "7", "8", "9", "10"]; // in feet
 export const FENCE_TYPE_OPTIONS = ["residential", "commercial"];
+
+// Gate Pipe Cut Calculator Options
 export const GATE_FRAME_DIAMETER_OPTIONS = ["1 3/8″", "1 5/8″", "2″"];
-export const GATE_TYPE_OPTIONS = ["Single", "Double"]; // Used by PipeCutCalculator
+export const GATE_TYPE_OPTIONS = ["Single", "Double"];
+export const GATE_FRAME_COLOR_OPTIONS = [
+  { value: 'galvanized', label: 'Galvanized' },
+  { value: 'black', label: 'Black' }
+];
+
+export const PIPE_PRICING: Record<string, Record<string, number>> = {
+  galvanized: {
+    "1 3/8″": 0.74,
+    "1 5/8″": 0.87,
+    "2″": 1.44,
+  },
+  black: {
+    "1 3/8″": 1.04,
+    "1 5/8″": 1.54,
+    "2″": 2.85,
+  }
+};
 
 // Vinyl Fence Options
 export const VINYL_PANEL_WIDTH_OPTIONS = ["6", "8"]; // in feet

@@ -1,6 +1,6 @@
 
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS } from '@/config/constants';
+import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS, GATE_FRAME_COLOR_OPTIONS } from '@/config/constants';
 import type { PipeCutCalculatorInput, PipeCutCalculatorResult, FullEstimateData } from '@/types';
 import { PipeCutCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -30,14 +30,30 @@ export function PipeCutCalculatorForm() {
       gateHeight: 48, // inches
       frameDiameter: GATE_FRAME_DIAMETER_OPTIONS[0],
       gateType: GATE_TYPE_OPTIONS[0],
-      pricePerFoot: 0,
+      frameColor: 'galvanized',
     },
   });
 
+  const watchAllFields = form.watch();
+
+  useEffect(() => {
+    // Re-calculate on any form change
+    if (form.formState.isValid) {
+      const currentValues = form.getValues();
+      setFormInputs(currentValues);
+      const calculatedResults = calculatePipeCuts(currentValues);
+      setResults(calculatedResults);
+    } else {
+      setResults(null);
+    }
+  }, [watchAllFields, form]);
+
+
   function onSubmit(data: PipeCutCalculatorInput) {
-    setFormInputs(data);
-    const calculatedResults = calculatePipeCuts(data);
-    setResults(calculatedResults);
+    // Submission is now primarily for sending to invoice, as calculation is live
+    if (fullEstimateData) {
+      handleSendToInvoice(fullEstimateData);
+    }
   }
 
   const handleSendToInvoice = async (estimateData: FullEstimateData) => {
@@ -77,7 +93,7 @@ export function PipeCutCalculatorForm() {
             <DoorOpen className="h-8 w-8 text-primary" />
             <CardTitle className="text-2xl font-headline">Gate Pipe Cut Calculator</CardTitle>
           </div>
-          <CardDescription>Enter gate specifications to calculate pipe cut lengths and post details.</CardDescription>
+          <CardDescription>Enter gate specs for live calculation of pipe cuts, cost, and drawing.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -105,6 +121,26 @@ export function PipeCutCalculatorForm() {
                       <FormControl>
                         <Input type="number" placeholder="e.g., 48" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="frameColor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Frame Color</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select color" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {GATE_FRAME_COLOR_OPTIONS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -149,26 +185,7 @@ export function PipeCutCalculatorForm() {
                     </FormItem>
                   )}
                 />
-                 <FormField
-                  control={form.control}
-                  name="pricePerFoot"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price per Foot ($)</FormLabel>
-                       <FormControl>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input type="number" placeholder="e.g., 2.50" className="pl-8" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Scissors className="mr-2 h-4 w-4" /> Calculate Pipe Cuts
-              </Button>
             </form>
           </Form>
 

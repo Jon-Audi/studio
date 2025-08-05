@@ -28,11 +28,11 @@ export interface ChainlinkCalculatorResult {
 }
 
 export const PipeCutCalculatorSchema = z.object({
-  gateWidth: z.coerce.number().min(0, "Gate width must be positive"),
-  gateHeight: z.coerce.number().min(0, "Gate height must be positive"),
+  gateWidth: z.coerce.number().min(1, "Gate width must be positive"),
+  gateHeight: z.coerce.number().min(1, "Gate height must be positive"),
   frameDiameter: z.string().min(1, "Frame diameter is required"),
   gateType: z.string().min(1, "Gate type is required"),
-  pricePerFoot: z.coerce.number().min(0, "Price must be non-negative").optional(),
+  frameColor: z.enum(['galvanized', 'black']),
 });
 export type PipeCutCalculatorInput = z.infer<typeof PipeCutCalculatorSchema>;
 

@@ -9,6 +9,8 @@ import type {
   BallFieldCalculatorInput, BallFieldCalculatorResult,
   GateEntry
 } from '@/types';
+import { PIPE_PRICING } from '@/config/constants';
+
 
 export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCalculatorResult {
   const { fenceLength, fenceHeight, fenceType, ends = 0, corners = 0 } = data;
@@ -75,10 +77,11 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
 
 
 export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculatorResult {
-  const { gateWidth, gateHeight, frameDiameter, gateType, pricePerFoot } = data;
+  const { gateWidth, gateHeight, frameDiameter, gateType, frameColor } = data;
   const numericGateWidth = Number(gateWidth);
   const numericGateHeight = Number(gateHeight);
-  const numericPricePerFoot = Number(pricePerFoot);
+  
+  const pricePerFoot = PIPE_PRICING[frameColor]?.[frameDiameter] || 0;
 
   let totalDeduction = 0;
   let numericFrameDiameter = 0;
@@ -138,8 +141,8 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
     result.totalPipeLength = parseFloat((totalPipeInches / 12).toFixed(2));
   }
 
-  if (result.totalPipeLength && numericPricePerFoot > 0) {
-    result.totalCost = parseFloat((result.totalPipeLength * numericPricePerFoot).toFixed(2));
+  if (result.totalPipeLength && pricePerFoot > 0) {
+    result.totalCost = parseFloat((result.totalPipeLength * pricePerFoot).toFixed(2));
   }
 
   return result;
