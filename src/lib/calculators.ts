@@ -75,9 +75,10 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
 
 
 export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculatorResult {
-  const { gateWidth, gateHeight, frameDiameter, gateType } = data;
+  const { gateWidth, gateHeight, frameDiameter, gateType, pricePerFoot } = data;
   const numericGateWidth = Number(gateWidth);
   const numericGateHeight = Number(gateHeight);
+  const numericPricePerFoot = Number(pricePerFoot);
 
   let totalDeduction = 0;
   let numericFrameDiameter = 0;
@@ -103,6 +104,9 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
 
   const postCount = isSingleGate ? 2 : (leafs === 2 ? 2 : 0);
   const postSpacing = numericGateWidth;
+  
+  let totalPipeInches = (uprightsLength * 2 + horizontalsLength * 2) * leafs;
+
 
   const result: PipeCutCalculatorResult = {
     uprightsLength,
@@ -116,6 +120,7 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   if (numericGateHeight > 48) {
     const internalLeafWidth = leafWidth - (numericFrameDiameter * 2);
     result.horizontalBraceLength = parseFloat(internalLeafWidth.toFixed(2));
+    totalPipeInches += result.horizontalBraceLength * leafs;
   }
 
   // Vertical brace for gates over 60" wide
@@ -126,6 +131,15 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
       count: 2,
       length: parseFloat(bracePieceLength.toFixed(2)),
     };
+    totalPipeInches += (result.verticalBracePieces.length * result.verticalBracePieces.count) * leafs;
+  }
+  
+  if (totalPipeInches > 0) {
+    result.totalPipeLength = parseFloat((totalPipeInches / 12).toFixed(2));
+  }
+
+  if (result.totalPipeLength && numericPricePerFoot > 0) {
+    result.totalCost = parseFloat((result.totalPipeLength * numericPricePerFoot).toFixed(2));
   }
 
   return result;

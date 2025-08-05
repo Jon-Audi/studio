@@ -32,6 +32,7 @@ export const PipeCutCalculatorSchema = z.object({
   gateHeight: z.coerce.number().min(0, "Gate height must be positive"),
   frameDiameter: z.string().min(1, "Frame diameter is required"),
   gateType: z.string().min(1, "Gate type is required"),
+  pricePerFoot: z.coerce.number().min(0, "Price must be non-negative").optional(),
 });
 export type PipeCutCalculatorInput = z.infer<typeof PipeCutCalculatorSchema>;
 
@@ -46,6 +47,8 @@ export interface PipeCutCalculatorResult {
     count: number;
     length: number;
   };
+  totalPipeLength?: number;
+  totalCost?: number;
 }
 
 const GateEntrySchema = z.object({

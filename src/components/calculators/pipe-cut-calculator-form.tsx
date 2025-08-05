@@ -16,7 +16,7 @@ import { GateShopDrawing } from '@/components/shared/gate-shop-drawing';
 import { calculatePipeCuts } from '@/lib/calculators';
 import { sendEstimateToInvoicingService } from '@/lib/actions';
 import { useToast } from "@/hooks/use-toast";
-import { Scissors, DoorOpen, Printer } from 'lucide-react';
+import { Scissors, DoorOpen, Printer, DollarSign } from 'lucide-react';
 
 export function PipeCutCalculatorForm() {
   const [results, setResults] = useState<PipeCutCalculatorResult | null>(null);
@@ -30,6 +30,7 @@ export function PipeCutCalculatorForm() {
       gateHeight: 48, // inches
       frameDiameter: GATE_FRAME_DIAMETER_OPTIONS[0],
       gateType: GATE_TYPE_OPTIONS[0],
+      pricePerFoot: 0,
     },
   });
 
@@ -148,6 +149,22 @@ export function PipeCutCalculatorForm() {
                     </FormItem>
                   )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="pricePerFoot"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price per Foot ($)</FormLabel>
+                       <FormControl>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input type="number" placeholder="e.g., 2.50" className="pl-8" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Scissors className="mr-2 h-4 w-4" /> Calculate Pipe Cuts
@@ -166,6 +183,8 @@ export function PipeCutCalculatorForm() {
                   'Vertical Brace (each)': results.verticalBracePieces ? `${results.verticalBracePieces.count} pieces @ ${results.verticalBracePieces.length}"` : undefined,
                   'Number of Gate Posts': results.postCount,
                   'Post Spacing': `${results.postSpacing}"`,
+                  'Total Pipe Length': results.totalPipeLength ? `${results.totalPipeLength} ft` : undefined,
+                  'Estimated Frame Cost': results.totalCost ? `$${results.totalCost}`: undefined,
                 }}
                 onSendToInvoice={handleSendToInvoice}
                 fullEstimateData={fullEstimateData}
