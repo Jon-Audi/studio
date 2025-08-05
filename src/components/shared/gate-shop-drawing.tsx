@@ -115,10 +115,10 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
                 <div className="flex-grow flex items-stretch gap-2 relative" style={{aspectRatio: `${aspectRatio}`}}>
                    {Array.from({ length: leafs }).map((_, i) => renderGateLeaf(i, leafDisplayWidth))}
                    {/* Labels for internal cuts */}
-                   <div className="absolute top-1/4 -translate-y-1/2 left-1/2 -translate-x-1/2 text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
-                   <div className="absolute bottom-1/4 translate-y-1/2 left-1/2 -translate-x-1/2 text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
-                   <div className="absolute left-1/4 -translate-x-1/2 top-1/2 -translate-y-1/2 text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}"</div>
-                   <div className="absolute right-1/4 translate-x-1/2 top-1/2 -translate-y-1/2 text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}"</div>
+                   <div className="absolute top-[5%] left-1/2 -translate-x-1/2 text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
+                   <div className="absolute bottom-[5%] left-1/2 -translate-x-1/2 text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
+                   <div className="absolute left-[5%] top-1/2 -translate-y-1/2 text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}"</div>
+                   <div className="absolute right-[5%] top-1/2 -translate-y-1/2 text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}"</div>
                 </div>
               </div>
             </div>
