@@ -11,7 +11,7 @@ interface GateShopDrawingProps {
 
 export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
   const { gateWidth, gateHeight, frameDiameter, gateType } = inputs;
-  const { uprightsLength, horizontalsLength, leafs, horizontalBraceLength, verticalBraceHeight } = results;
+  const { uprightsLength, horizontalsLength, leafs, horizontalBraceLength, verticalBracePieces } = results;
 
   const aspectRatio = Number(gateWidth) / Number(gateHeight);
 
@@ -30,20 +30,25 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
         <div className="h-full w-4 bg-muted-foreground relative flex items-center justify-center">
           <span className="absolute text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}" (Cut)</span>
         </div>
-        <div className="flex-grow h-full"></div>
+        <div className="flex-grow h-full relative">
+          {/* Bracing */}
+          {horizontalBraceLength && (
+              <div className="absolute top-1/2 left-0 w-full h-4 bg-muted-foreground/80 -translate-y-1/2 flex justify-center items-center">
+                   <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{horizontalBraceLength}" (Cut)</span>
+              </div>
+          )}
+          {verticalBracePieces && (
+            <div className="absolute left-1/2 top-0 h-full w-4 bg-muted-foreground/80 -translate-x-1/2 flex flex-col justify-between items-center py-2">
+                <div className="h-full flex items-center">
+                  <span className="absolute text-xs font-bold bg-background py-1 text-foreground -rotate-90 whitespace-nowrap -translate-y-1/2 top-1/4">{verticalBracePieces.length}" (Cut)</span>
+                </div>
+                 <div className="h-full flex items-center">
+                   <span className="absolute text-xs font-bold bg-background py-1 text-foreground -rotate-90 whitespace-nowrap translate-y-1/2 bottom-1/4">{verticalBracePieces.length}" (Cut)</span>
+                </div>
+            </div>
+          )}
+        </div>
         <div className="h-full w-4 bg-muted-foreground"></div>
-
-        {/* Bracing */}
-        {horizontalBraceLength && (
-            <div className="absolute top-1/2 left-0 w-full h-4 bg-muted-foreground/80 -translate-y-1/2 flex justify-center items-center">
-                 <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{horizontalBraceLength}" (Cut)</span>
-            </div>
-        )}
-        {verticalBraceHeight && (
-             <div className="absolute left-1/2 top-0 h-full w-4 bg-muted-foreground/80 -translate-x-1/2 flex justify-center items-center">
-                <span className="absolute text-xs font-bold bg-background py-1 text-foreground -rotate-90 whitespace-nowrap">{verticalBraceHeight}" (Cut)</span>
-            </div>
-        )}
       </div>
       
       {/* Horizontal bottom bar */}
@@ -104,10 +109,10 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
             <div className="font-semibold">Leafs:</div><div>{leafs}</div>
             <div className="font-semibold">Horizontal Cut (per leaf):</div><div>{horizontalsLength}"</div>
             <div className="font-semibold">Vertical Cut (per upright):</div><div>{uprightsLength}"</div>
-            {horizontalBraceLength && <div className="font-semibold">Horizontal Brace:</div>}
+            {horizontalBraceLength && <div className="font-semibold">Horizontal Brace (Cut):</div>}
             {horizontalBraceLength && <div>{horizontalBraceLength}"</div>}
-            {verticalBraceHeight && <div className="font-semibold">Vertical Brace:</div>}
-            {verticalBraceHeight && <div>{verticalBraceHeight}"</div>}
+            {verticalBracePieces && <div className="font-semibold">Vertical Brace (Cut):</div>}
+            {verticalBracePieces && <div>{`${verticalBracePieces.count} pieces @ ${verticalBracePieces.length}"`}</div>}
           </div>
         </CardContent>
       </Card>

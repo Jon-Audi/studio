@@ -163,7 +163,7 @@ export function PipeCutCalculatorForm() {
                   'Uprights Length (each)': `${results.uprightsLength}"`,
                   'Horizontals Length (each)': `${results.horizontalsLength}" (${results.leafs} leaf/leaves)`,
                   'Horizontal Brace Length': results.horizontalBraceLength ? `${results.horizontalBraceLength}"` : undefined,
-                  'Vertical Brace Height': results.verticalBraceHeight ? `${results.verticalBraceHeight}"` : undefined,
+                  'Vertical Brace (each)': results.verticalBracePieces ? `${results.verticalBracePieces.count} pieces @ ${results.verticalBracePieces.length}"` : undefined,
                   'Number of Gate Posts': results.postCount,
                   'Post Spacing': `${results.postSpacing}"`,
                 }}

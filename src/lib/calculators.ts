@@ -80,9 +80,10 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const numericGateHeight = Number(gateHeight);
 
   let totalDeduction = 0;
-  if (frameDiameter === "1 3/8″") totalDeduction = 3;
-  else if (frameDiameter === "1 5/8″") totalDeduction = 3.5;
-  else if (frameDiameter === "2″") totalDeduction = 4;
+  let numericFrameDiameter = 0;
+  if (frameDiameter === "1 3/8″") { totalDeduction = 3; numericFrameDiameter = 1.375; }
+  else if (frameDiameter === "1 5/8″") { totalDeduction = 3.5; numericFrameDiameter = 1.625; }
+  else if (frameDiameter === "2″") { totalDeduction = 4; numericFrameDiameter = 2; }
 
   const isSingleGate = gateType === "Single";
   const leafs = isSingleGate ? 1 : 2;
@@ -103,30 +104,31 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const postCount = isSingleGate ? 2 : (leafs === 2 ? 2 : 0);
   const postSpacing = numericGateWidth;
 
-  // Bracing logic
-  let horizontalBraceLength: number | undefined;
-  let verticalBraceHeight: number | undefined;
-
-  // Horizontal brace for gates over 48" tall
-  if (numericGateHeight > 48) {
-    horizontalBraceLength = horizontalsLength;
-  }
-
-  // Vertical brace for gates over 60" wide
-  if (numericGateWidth > 60) {
-    verticalBraceHeight = uprightsLength;
-  }
-
-
-  return {
+  const result: PipeCutCalculatorResult = {
     uprightsLength,
     horizontalsLength,
     postCount,
     postSpacing,
     leafs,
-    horizontalBraceLength,
-    verticalBraceHeight,
   };
+
+  // Horizontal brace for gates over 48" tall
+  if (numericGateHeight > 48) {
+    const internalLeafWidth = leafWidth - (numericFrameDiameter * 2);
+    result.horizontalBraceLength = parseFloat(internalLeafWidth.toFixed(2));
+  }
+
+  // Vertical brace for gates over 60" wide
+  if (numericGateWidth > 60) {
+    const internalLeafHeight = numericGateHeight - (numericFrameDiameter * 2);
+    const bracePieceLength = (internalLeafHeight - numericFrameDiameter) / 2;
+    result.verticalBracePieces = {
+      count: 2,
+      length: parseFloat(bracePieceLength.toFixed(2)),
+    };
+  }
+
+  return result;
 }
 
 function calculateTotalGateData(singleGates: GateEntry[] = [], doubleGates: GateEntry[] = []) {

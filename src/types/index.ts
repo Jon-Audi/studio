@@ -42,7 +42,10 @@ export interface PipeCutCalculatorResult {
   postSpacing: number;
   leafs: number;
   horizontalBraceLength?: number;
-  verticalBraceHeight?: number;
+  verticalBracePieces?: {
+    count: number;
+    length: number;
+  };
 }
 
 const GateEntrySchema = z.object({
@@ -98,7 +101,7 @@ export interface WoodCalculatorResult {
   numPickets?: number;
   picketsPerSection?: number;
   totalRailLength?: number;
-  numBackers?: number; // Number of 8ft backers
+  numBackers?: number;
   bagsOfConcrete?: number;
   gatePosts?: number;
   totalGateOpenings?: number;
