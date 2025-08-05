@@ -32,21 +32,39 @@ export function PipeCutCalculatorForm() {
       gateType: GATE_TYPE_OPTIONS[0],
       frameColor: 'galvanized',
     },
+    mode: 'onChange', // Important for live updates
   });
 
   const watchAllFields = form.watch();
 
   useEffect(() => {
-    // Re-calculate on any form change
-    if (form.formState.isValid) {
-      const currentValues = form.getValues();
-      setFormInputs(currentValues);
-      const calculatedResults = calculatePipeCuts(currentValues);
-      setResults(calculatedResults);
-    } else {
-      setResults(null);
-    }
-  }, [watchAllFields, form]);
+    const subscription = form.watch((values, { name, type }) => {
+      if (type === 'change') {
+         form.trigger().then(isValid => {
+          if (isValid) {
+            const currentValues = form.getValues();
+            setFormInputs(currentValues);
+            const calculatedResults = calculatePipeCuts(currentValues);
+            setResults(calculatedResults);
+          } else {
+            setResults(null);
+          }
+        });
+      }
+    });
+    
+    // Initial calculation on mount
+    form.trigger().then(isValid => {
+      if (isValid) {
+        const currentValues = form.getValues();
+        setFormInputs(currentValues);
+        const calculatedResults = calculatePipeCuts(currentValues);
+        setResults(calculatedResults);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
 
   function onSubmit(data: PipeCutCalculatorInput) {
