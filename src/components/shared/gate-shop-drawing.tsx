@@ -11,13 +11,13 @@ interface GateShopDrawingProps {
 
 export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
   const { gateWidth, gateHeight, frameDiameter, gateType } = inputs;
-  const { uprightsLength, horizontalsLength, leafs } = results;
+  const { uprightsLength, horizontalsLength, leafs, horizontalBraceLength, verticalBraceHeight } = results;
 
   const aspectRatio = Number(gateWidth) / Number(gateHeight);
 
   // A function to render a single gate leaf
   const renderGateLeaf = (key: number, leafWidth: number) => (
-    <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground" style={{ aspectRatio: `${leafWidth / Number(gateHeight)}` }}>
+    <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground relative" style={{ aspectRatio: `${leafWidth / Number(gateHeight)}` }}>
       {/* Horizontal top bar with label */}
       <div className="w-full relative flex justify-center items-center p-1">
         <div className="w-full h-4 bg-muted-foreground"></div>
@@ -25,13 +25,25 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
       </div>
 
       {/* Main body of the gate */}
-      <div className="flex-grow w-full flex items-center justify-center">
+      <div className="flex-grow w-full flex items-center justify-center relative">
         {/* Vertical bar with label */}
         <div className="h-full w-4 bg-muted-foreground relative flex items-center justify-center">
           <span className="absolute text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}" (Cut)</span>
         </div>
         <div className="flex-grow h-full"></div>
         <div className="h-full w-4 bg-muted-foreground"></div>
+
+        {/* Bracing */}
+        {horizontalBraceLength && (
+            <div className="absolute top-1/2 left-0 w-full h-4 bg-muted-foreground/80 -translate-y-1/2 flex justify-center items-center">
+                 <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{horizontalBraceLength}" (Cut)</span>
+            </div>
+        )}
+        {verticalBraceHeight && (
+             <div className="absolute left-1/2 top-0 h-full w-4 bg-muted-foreground/80 -translate-x-1/2 flex justify-center items-center">
+                <span className="absolute text-xs font-bold bg-background py-1 text-foreground -rotate-90 whitespace-nowrap">{verticalBraceHeight}" (Cut)</span>
+            </div>
+        )}
       </div>
       
       {/* Horizontal bottom bar */}
@@ -92,6 +104,10 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
             <div className="font-semibold">Leafs:</div><div>{leafs}</div>
             <div className="font-semibold">Horizontal Cut (per leaf):</div><div>{horizontalsLength}"</div>
             <div className="font-semibold">Vertical Cut (per upright):</div><div>{uprightsLength}"</div>
+            {horizontalBraceLength && <div className="font-semibold">Horizontal Brace:</div>}
+            {horizontalBraceLength && <div>{horizontalBraceLength}"</div>}
+            {verticalBraceHeight && <div className="font-semibold">Vertical Brace:</div>}
+            {verticalBraceHeight && <div>{verticalBraceHeight}"</div>}
           </div>
         </CardContent>
       </Card>

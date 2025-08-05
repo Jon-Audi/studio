@@ -41,6 +41,8 @@ export interface PipeCutCalculatorResult {
   postCount: number;
   postSpacing: number;
   leafs: number;
+  horizontalBraceLength?: number;
+  verticalBraceHeight?: number;
 }
 
 const GateEntrySchema = z.object({

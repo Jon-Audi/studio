@@ -160,10 +160,12 @@ export function PipeCutCalculatorForm() {
                <ResultsCard
                 title="Pipe Cut Results"
                 data={{
-                  'Uprights Length (each)': `${results.uprightsLength} inches`,
-                  'Horizontals Length (each)': `${results.horizontalsLength} inches (${results.leafs} leaf/leaves)`,
+                  'Uprights Length (each)': `${results.uprightsLength}"`,
+                  'Horizontals Length (each)': `${results.horizontalsLength}" (${results.leafs} leaf/leaves)`,
+                  'Horizontal Brace Length': results.horizontalBraceLength ? `${results.horizontalBraceLength}"` : undefined,
+                  'Vertical Brace Height': results.verticalBraceHeight ? `${results.verticalBraceHeight}"` : undefined,
                   'Number of Gate Posts': results.postCount,
-                  'Post Spacing': `${results.postSpacing} inches`,
+                  'Post Spacing': `${results.postSpacing}"`,
                 }}
                 onSendToInvoice={handleSendToInvoice}
                 fullEstimateData={fullEstimateData}

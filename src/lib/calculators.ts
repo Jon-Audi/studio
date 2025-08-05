@@ -103,12 +103,29 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const postCount = isSingleGate ? 2 : (leafs === 2 ? 2 : 0);
   const postSpacing = numericGateWidth;
 
+  // Bracing logic
+  let horizontalBraceLength: number | undefined;
+  let verticalBraceHeight: number | undefined;
+
+  // Horizontal brace for gates over 48" tall
+  if (numericGateHeight > 48) {
+    horizontalBraceLength = horizontalsLength;
+  }
+
+  // Vertical brace for gates over 60" wide
+  if (numericGateWidth > 60) {
+    verticalBraceHeight = uprightsLength;
+  }
+
+
   return {
     uprightsLength,
     horizontalsLength,
     postCount,
     postSpacing,
     leafs,
+    horizontalBraceLength,
+    verticalBraceHeight,
   };
 }
 
