@@ -11,14 +11,14 @@ interface GateShopDrawingProps {
 }
 
 export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
-  const { gateWidth, gateHeight, frameDiameter, gateType } = inputs;
-  const { uprightsLength, horizontalsLength, leafs, horizontalBraceLength, verticalBracePieces } = results;
+  const { gateWidth, gateHeight, frameDiameter, gateType, calculationMode } = inputs;
+  const { uprightsLength, horizontalsLength, leafs, horizontalBraceLength, verticalBracePieces, frameWidth, frameHeight, requiredOpening, postSpacing } = results;
 
-  const aspectRatio = Number(gateWidth) / Number(gateHeight);
+  const aspectRatio = frameWidth / frameHeight;
 
   // A function to render a single gate leaf
   const renderGateLeaf = (key: number, leafWidth: number) => (
-    <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground relative bg-background" style={{ aspectRatio: `${leafWidth / Number(gateHeight)}` }}>
+    <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground relative bg-background" style={{ aspectRatio: `${leafWidth / frameHeight}` }}>
       {/* Horizontal top bar with label */}
       <div className="w-full relative flex justify-center items-center p-1">
         <div className="w-full h-2 bg-foreground"></div>
@@ -54,7 +54,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
     </div>
   );
 
-  const leafDisplayWidth = leafs > 1 ? (Number(gateWidth) - 2) / leafs : Number(gateWidth);
+  const leafDisplayWidth = leafs > 1 ? (frameWidth - 2) / leafs : frameWidth;
 
   // Create Cut List
   const cutList = [
@@ -70,6 +70,14 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
     cutList.push({ qty: leafs * verticalBracePieces.count, length: `${verticalBracePieces.length}"`, description: 'Vertical Brace Pieces (Cut & Notch)' });
   }
 
+  const calculationModeText = calculationMode === 'opening' ? 'Opening Size' : 'Frame Size';
+  const displayWidth = calculationMode === 'opening' ? postSpacing : frameWidth;
+  const displayHeight = frameHeight;
+  const widthLabel = calculationMode === 'opening' ? `Opening Width: ${postSpacing}"` : `Frame Width: ${frameWidth}"`;
+  const heightLabel = `Frame Height: ${frameHeight}"`;
+  const requiredOpeningText = requiredOpening ? `Required Opening: ${requiredOpening}"` : undefined;
+
+
   return (
     <div className="p-8 bg-background text-foreground">
       <Card className="w-full max-w-4xl mx-auto border-2 border-foreground">
@@ -81,11 +89,11 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
             </div>
             <DelawareFenceSolutionsLogoIcon className="h-12 w-auto" />
           </div>
-           <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-sm pt-4">
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm pt-4">
             <div className="font-semibold">Gate Type:</div><div>{gateType}</div>
-            <div className="font-semibold">Overall Width:</div><div>{gateWidth}"</div>
             <div className="font-semibold">Frame Diameter:</div><div>{frameDiameter}</div>
-            <div className="font-semibold">Overall Height:</div><div>{gateHeight}"</div>
+            <div className="font-semibold">Calc. Mode:</div><div>{calculationModeText}</div>
+            {requiredOpeningText && <><div className="font-semibold">Req. Opening:</div><div>{requiredOpening}"</div></>}
           </div>
         </CardHeader>
         <CardContent>
@@ -96,7 +104,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
               <div className="flex justify-center items-center mb-2">
                 <div className="border-t-2 border-b-2 border-l-2 border-foreground h-4 w-1"></div>
                 <div className="flex-grow border-t-2 border-foreground text-center relative">
-                  <span className="text-lg font-bold bg-background px-2 absolute -top-3 left-1/2 -translate-x-1/2">{gateWidth}"</span>
+                  <span className="text-lg font-bold bg-background px-2 absolute -top-3 left-1/2 -translate-x-1/2">{widthLabel}</span>
                 </div>
                 <div className="border-t-2 border-b-2 border-r-2 border-foreground h-4 w-1"></div>
               </div>
@@ -106,7 +114,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
                 <div className="flex flex-col justify-center items-center mr-2">
                   <div className="border-l-2 border-r-2 border-t-2 border-foreground w-4 h-1"></div>
                   <div className="flex-grow border-l-2 border-foreground text-center writing-mode-vertical-rl transform -rotate-180 relative">
-                    <span className="text-lg font-bold bg-background py-2 absolute -left-3 top-1/2 -translate-y-1/2">{gateHeight}"</span>
+                    <span className="text-lg font-bold bg-background py-2 absolute -left-5 top-1/2 -translate-y-1/2 whitespace-nowrap">{heightLabel}</span>
                   </div>
                    <div className="border-l-2 border-r-2 border-b-2 border-foreground w-4 h-1"></div>
                 </div>

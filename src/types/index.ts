@@ -28,6 +28,7 @@ export interface ChainlinkCalculatorResult {
 }
 
 export const PipeCutCalculatorSchema = z.object({
+  calculationMode: z.enum(['opening', 'frame']).default('opening'),
   gateWidth: z.coerce.number().min(1, "Gate width must be positive"),
   gateHeight: z.coerce.number().min(1, "Gate height must be positive"),
   frameDiameter: z.string().min(1, "Frame diameter is required"),
@@ -37,6 +38,8 @@ export const PipeCutCalculatorSchema = z.object({
 export type PipeCutCalculatorInput = z.infer<typeof PipeCutCalculatorSchema>;
 
 export interface PipeCutCalculatorResult {
+  frameWidth: number;
+  frameHeight: number;
   uprightsLength: number;
   horizontalsLength: number;
   postCount: number;
@@ -49,6 +52,7 @@ export interface PipeCutCalculatorResult {
   };
   totalPipeLength?: number;
   totalCost?: number;
+  requiredOpening?: number;
 }
 
 const GateEntrySchema = z.object({

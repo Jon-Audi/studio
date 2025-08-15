@@ -77,7 +77,7 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
 
 
 export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculatorResult {
-  const { gateWidth, gateHeight, frameDiameter, gateType, frameColor } = data;
+  const { calculationMode, gateWidth, gateHeight, frameDiameter, gateType, frameColor } = data;
   const numericGateWidth = Number(gateWidth);
   const numericGateHeight = Number(gateHeight);
   
@@ -91,11 +91,24 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
 
   const isSingleGate = gateType === "Single";
   const leafs = isSingleGate ? 1 : 2;
-
   const doubleGateGap = isSingleGate ? 0 : 1;
-  const adjustedGateWidth = numericGateWidth - totalDeduction - doubleGateGap;
 
-  const leafWidth = adjustedGateWidth / leafs;
+  let frameWidth, frameHeight, requiredOpening, postSpacing;
+
+  if (calculationMode === 'opening') {
+    frameWidth = numericGateWidth - totalDeduction;
+    frameHeight = numericGateHeight;
+    postSpacing = numericGateWidth;
+    requiredOpening = undefined;
+  } else { // calculationMode === 'frame'
+    frameWidth = numericGateWidth;
+    frameHeight = numericGateHeight;
+    postSpacing = numericGateWidth + totalDeduction;
+    requiredOpening = postSpacing;
+  }
+  
+  const adjustedFrameWidthForLeaves = frameWidth - (isSingleGate ? 0 : doubleGateGap);
+  const leafWidth = adjustedFrameWidthForLeaves / leafs;
 
   let cornerFittingDeduction = 0;
   if (frameDiameter === "1 3/8″") cornerFittingDeduction = 1.5 * 2;
@@ -103,32 +116,33 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   else if (frameDiameter === "2″") cornerFittingDeduction = 2 * 2;
 
   const horizontalsLength = parseFloat((leafWidth - cornerFittingDeduction).toFixed(2));
-  const uprightsLength = numericGateHeight;
+  const uprightsLength = frameHeight;
 
   const postCount = isSingleGate ? 2 : (leafs === 2 ? 2 : 0);
-  const postSpacing = numericGateWidth;
   
   let totalPipeInches = (uprightsLength * 2 + horizontalsLength * 2) * leafs;
 
-
   const result: PipeCutCalculatorResult = {
+    frameWidth,
+    frameHeight,
     uprightsLength,
     horizontalsLength,
     postCount,
     postSpacing,
     leafs,
+    requiredOpening,
   };
 
   // Horizontal brace for gates over 48" tall
-  if (numericGateHeight > 48) {
+  if (frameHeight > 48) {
     const internalLeafWidth = leafWidth - (numericFrameDiameter * 2);
     result.horizontalBraceLength = parseFloat(internalLeafWidth.toFixed(2));
     totalPipeInches += result.horizontalBraceLength * leafs;
   }
 
   // Vertical brace for gates over 60" wide
-  if (numericGateWidth > 60) {
-    const internalLeafHeight = numericGateHeight - (numericFrameDiameter * 2);
+  if (frameWidth > 60) {
+    const internalLeafHeight = frameHeight - (numericFrameDiameter * 2);
     const bracePieceLength = (internalLeafHeight - numericFrameDiameter) / 2;
     result.verticalBracePieces = {
       count: 2,

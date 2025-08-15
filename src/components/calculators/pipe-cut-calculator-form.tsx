@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS, GATE_FRAME_COLOR_OPTIONS } from '@/config/constants';
 import type { PipeCutCalculatorInput, PipeCutCalculatorResult, FullEstimateData } from '@/types';
 import { PipeCutCalculatorSchema } from '@/types';
@@ -16,7 +17,7 @@ import { GateShopDrawing } from '@/components/shared/gate-shop-drawing';
 import { calculatePipeCuts } from '@/lib/calculators';
 import { sendEstimateToInvoicingService } from '@/lib/actions';
 import { useToast } from "@/hooks/use-toast";
-import { Scissors, DoorOpen, Printer, DollarSign } from 'lucide-react';
+import { Scissors, DoorOpen, Printer } from 'lucide-react';
 
 export function PipeCutCalculatorForm() {
   const [results, setResults] = useState<PipeCutCalculatorResult | null>(null);
@@ -26,49 +27,42 @@ export function PipeCutCalculatorForm() {
   const form = useForm<PipeCutCalculatorInput>({
     resolver: zodResolver(PipeCutCalculatorSchema),
     defaultValues: {
+      calculationMode: 'opening',
       gateWidth: 48, // inches
       gateHeight: 48, // inches
       frameDiameter: GATE_FRAME_DIAMETER_OPTIONS[0],
       gateType: GATE_TYPE_OPTIONS[0],
       frameColor: 'galvanized',
     },
-    mode: 'onChange', // Important for live updates
+    mode: 'onChange',
   });
+  
+  const calculationMode = form.watch('calculationMode');
 
-  const watchAllFields = form.watch();
-
-  useEffect(() => {
-    const subscription = form.watch((values, { name, type }) => {
-      if (type === 'change') {
-         form.trigger().then(isValid => {
-          if (isValid) {
-            const currentValues = form.getValues();
-            setFormInputs(currentValues);
-            const calculatedResults = calculatePipeCuts(currentValues);
-            setResults(calculatedResults);
-          } else {
-            setResults(null);
-          }
-        });
-      }
-    });
-    
-    // Initial calculation on mount
+  const handleCalculation = () => {
     form.trigger().then(isValid => {
       if (isValid) {
         const currentValues = form.getValues();
         setFormInputs(currentValues);
         const calculatedResults = calculatePipeCuts(currentValues);
         setResults(calculatedResults);
+      } else {
+        setResults(null);
       }
     });
+  };
 
+  useEffect(() => {
+    const subscription = form.watch((values, { name, type }) => {
+      if (type === 'change') {
+        handleCalculation();
+      }
+    });
+    handleCalculation(); // Initial calculation
     return () => subscription.unsubscribe();
   }, [form]);
 
-
   function onSubmit(data: PipeCutCalculatorInput) {
-    // Submission is now primarily for sending to invoice, as calculation is live
     if (fullEstimateData) {
       handleSendToInvoice(fullEstimateData);
     }
@@ -103,6 +97,9 @@ export function PipeCutCalculatorForm() {
     window.print();
   };
 
+  const widthLabel = calculationMode === 'opening' ? 'Opening Width (inches)' : 'Frame Width (inches)';
+  const heightLabel = calculationMode === 'opening' ? 'Opening Height (inches)' : 'Frame Height (inches)';
+
   return (
     <>
       <Card className="w-full max-w-2xl mx-auto shadow-xl no-print">
@@ -116,13 +113,47 @@ export function PipeCutCalculatorForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="calculationMode"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Calculate By</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex items-center space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="opening" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Opening Size
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="frame" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Frame Size
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="gateWidth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gate Width (inches)</FormLabel>
+                      <FormLabel>{widthLabel}</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="e.g., 48" {...field} />
                       </FormControl>
@@ -135,7 +166,7 @@ export function PipeCutCalculatorForm() {
                   name="gateHeight"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gate Height (inches)</FormLabel>
+                      <FormLabel>{heightLabel}</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="e.g., 48" {...field} />
                       </FormControl>
@@ -212,6 +243,9 @@ export function PipeCutCalculatorForm() {
                <ResultsCard
                 title="Pipe Cut Results"
                 data={{
+                  'Calculation Mode': formInputs?.calculationMode === 'opening' ? 'Opening Size' : 'Frame Size',
+                  'Required Opening': results.requiredOpening ? `${results.requiredOpening}"` : undefined,
+                  'Final Frame Size': `${results.frameWidth}" W x ${results.frameHeight}" H`,
                   'Uprights Length (each)': `${results.uprightsLength}"`,
                   'Horizontals Length (each)': `${results.horizontalsLength}" (${results.leafs} leaf/leaves)`,
                   'Horizontal Brace Length': results.horizontalBraceLength ? `${results.horizontalBraceLength}"` : undefined,
