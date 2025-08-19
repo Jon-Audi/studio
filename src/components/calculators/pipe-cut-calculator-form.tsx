@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS, GATE_FRAME_COLOR_OPTIONS } from '@/config/constants';
@@ -41,8 +41,6 @@ export function PipeCutCalculatorForm() {
   });
   
   const calculationMode = form.watch('calculationMode');
-  const gateHeight = form.watch('gateHeight');
-  const gateWidth = form.watch('gateWidth');
 
   const handleCalculation = () => {
     form.trigger().then(isValid => {
