@@ -19,15 +19,13 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
   // A function to render a single gate leaf
   const renderGateLeaf = (key: number, leafWidth: number) => (
     <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground relative bg-background" style={{ aspectRatio: `${leafWidth / frameHeight}` }}>
-      {/* Horizontal top bar with label */}
-      <div className="w-full relative flex justify-center items-center p-1">
-        <div className="w-full h-2 bg-foreground"></div>
-      </div>
+      {/* Horizontal top bar */}
+      <div className="w-full h-2 bg-foreground"></div>
 
       {/* Main body of the gate */}
       <div className="flex-grow w-full flex items-center justify-center relative">
-        {/* Vertical bar with label */}
-        <div className="h-full w-2 bg-foreground relative flex items-center justify-center"></div>
+        {/* Vertical side bars */}
+        <div className="h-full w-2 bg-foreground"></div>
         <div className="flex-grow h-full relative">
           {/* Bracing */}
           {horizontalBraceLength && (
@@ -37,10 +35,10 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
           )}
           {verticalBracePieces && (
             <div className="absolute left-1/2 top-0 h-full w-2 bg-foreground/80 -translate-x-1/2 flex flex-col justify-between items-center py-2">
-                <div className="absolute top-0 bottom-1/2 mb-1 left-0 right-0 flex items-center justify-center">
+                <div className="absolute top-1/4 left-0 right-0 flex items-center justify-center">
                    <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{verticalBracePieces.length}"</span>
                 </div>
-                <div className="absolute bottom-0 top-1/2 mt-1 left-0 right-0 flex items-center justify-center">
+                <div className="absolute bottom-1/4 left-0 right-0 flex items-center justify-center">
                    <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{verticalBracePieces.length}"</span>
                 </div>
             </div>
@@ -71,12 +69,8 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
   }
 
   const calculationModeText = calculationMode === 'opening' ? 'Opening Size' : 'Frame Size';
-  const displayWidth = calculationMode === 'opening' ? postSpacing : frameWidth;
-  const displayHeight = frameHeight;
   const widthLabel = calculationMode === 'opening' ? `Opening Width: ${postSpacing}"` : `Frame Width: ${frameWidth}"`;
   const heightLabel = `Frame Height: ${frameHeight}"`;
-  const requiredOpeningText = requiredOpening ? `Required Opening: ${requiredOpening}"` : undefined;
-
 
   return (
     <div className="p-8 bg-background text-foreground">
@@ -93,7 +87,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
             <div className="font-semibold">Gate Type:</div><div>{gateType}</div>
             <div className="font-semibold">Frame Diameter:</div><div>{frameDiameter}</div>
             <div className="font-semibold">Calc. Mode:</div><div>{calculationModeText}</div>
-            {requiredOpeningText && <><div className="font-semibold">Req. Opening:</div><div>{requiredOpening}"</div></>}
+            {requiredOpening && <><div className="font-semibold">Req. Opening:</div><div>{requiredOpening}"</div></>}
           </div>
         </CardHeader>
         <CardContent>
@@ -123,10 +117,10 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
                 <div className="flex-grow flex items-stretch gap-2 relative" style={{aspectRatio: `${aspectRatio}`}}>
                    {Array.from({ length: leafs }).map((_, i) => renderGateLeaf(i, leafDisplayWidth))}
                    {/* Labels for internal cuts */}
-                   <div className="absolute top-[5%] left-1/2 -translate-x-1/2 text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
-                   <div className="absolute bottom-[5%] left-1/2 -translate-x-1/2 text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
-                   <div className="absolute left-[5%] top-1/2 -translate-y-1/2 text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}"</div>
-                   <div className="absolute right-[5%] top-1/2 -translate-y-1/2 text-sm font-bold bg-background px-1 text-foreground -rotate-90 whitespace-nowrap">{uprightsLength}"</div>
+                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
+                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
+                   <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full text-sm font-bold bg-background px-1 text-foreground whitespace-nowrap">{uprightsLength}"</div>
+                   <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full text-sm font-bold bg-background px-1 text-foreground whitespace-nowrap">{uprightsLength}"</div>
                 </div>
               </div>
             </div>
