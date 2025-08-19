@@ -98,17 +98,17 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
               <div className="flex justify-center items-center mb-2">
                 <div className="border-t-2 border-b-2 border-l-2 border-foreground h-4 w-1"></div>
                 <div className="flex-grow border-t-2 border-foreground text-center relative">
-                  <span className="text-lg font-bold bg-background px-2 absolute -top-3 left-1/2 -translate-x-1/2">{widthLabel}</span>
+                  <span className="text-lg font-bold bg-background px-2 absolute -top-4 left-1/2 -translate-x-1/2">{widthLabel}</span>
                 </div>
                 <div className="border-t-2 border-b-2 border-r-2 border-foreground h-4 w-1"></div>
               </div>
 
               <div className="flex items-start">
                 {/* Overall Height Dimension */}
-                <div className="flex flex-col justify-center items-center mr-2">
+                <div className="flex flex-col justify-center items-center mr-4">
                   <div className="border-l-2 border-r-2 border-t-2 border-foreground w-4 h-1"></div>
-                  <div className="flex-grow border-l-2 border-foreground text-center writing-mode-vertical-rl transform -rotate-180 relative">
-                    <span className="text-lg font-bold bg-background py-2 absolute -left-5 top-1/2 -translate-y-1/2 whitespace-nowrap">{heightLabel}</span>
+                  <div className="flex-grow border-l-2 border-foreground text-center writing-mode-vertical-rl relative">
+                    <span className="text-lg font-bold bg-background px-2 absolute -left-[4.5rem] top-1/2 -translate-y-1/2 whitespace-nowrap transform rotate-180">{heightLabel}</span>
                   </div>
                    <div className="border-l-2 border-r-2 border-b-2 border-foreground w-4 h-1"></div>
                 </div>
