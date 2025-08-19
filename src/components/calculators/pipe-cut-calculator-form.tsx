@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS, GATE_FRAME_COLOR_OPTIONS } from '@/config/constants';
 import type { PipeCutCalculatorInput, PipeCutCalculatorResult, FullEstimateData } from '@/types';
 import { PipeCutCalculatorSchema } from '@/types';
@@ -33,11 +34,15 @@ export function PipeCutCalculatorForm() {
       frameDiameter: GATE_FRAME_DIAMETER_OPTIONS[0],
       gateType: GATE_TYPE_OPTIONS[0],
       frameColor: 'galvanized',
+      includeHorizontalBrace: true,
+      includeVerticalBrace: true,
     },
     mode: 'onChange',
   });
   
   const calculationMode = form.watch('calculationMode');
+  const gateHeight = form.watch('gateHeight');
+  const gateWidth = form.watch('gateWidth');
 
   const handleCalculation = () => {
     form.trigger().then(isValid => {
@@ -60,7 +65,8 @@ export function PipeCutCalculatorForm() {
     });
     handleCalculation(); // Initial calculation
     return () => subscription.unsubscribe();
-  }, [form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function onSubmit(data: PipeCutCalculatorInput) {
     if (fullEstimateData) {
@@ -99,6 +105,9 @@ export function PipeCutCalculatorForm() {
 
   const widthLabel = calculationMode === 'opening' ? 'Opening Width (inches)' : 'Frame Width (inches)';
   const heightLabel = calculationMode === 'opening' ? 'Opening Height (inches)' : 'Frame Height (inches)';
+  
+  const showHorizontalBraceCheckbox = (results?.frameHeight || 0) > 48;
+  const showVerticalBraceCheckbox = (results?.frameWidth || 0) > 60;
 
   return (
     <>
@@ -235,6 +244,62 @@ export function PipeCutCalculatorForm() {
                   )}
                 />
               </div>
+
+              <div className="space-y-4">
+                <FormLabel>Bracing Options</FormLabel>
+                 {showHorizontalBraceCheckbox && (
+                    <FormField
+                      control={form.control}
+                      name="includeHorizontalBrace"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                           <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>
+                              Include Horizontal Brace
+                            </FormLabel>
+                            <FormDescription>
+                              Recommended for gates over 48" tall.
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  {showVerticalBraceCheckbox && (
+                    <FormField
+                      control={form.control}
+                      name="includeVerticalBrace"
+                      render={({ field }) => (
+                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                           <FormControl>
+                             <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>
+                              Include Vertical Brace
+                            </FormLabel>
+                            <FormDescription>
+                              Recommended for gates over 60" wide.
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  {!showHorizontalBraceCheckbox && !showVerticalBraceCheckbox && (
+                     <p className="text-sm text-muted-foreground p-4 border rounded-md">No bracing required for a gate of this size.</p>
+                  )}
+              </div>
+
             </form>
           </Form>
 

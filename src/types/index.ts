@@ -34,6 +34,8 @@ export const PipeCutCalculatorSchema = z.object({
   frameDiameter: z.string().min(1, "Frame diameter is required"),
   gateType: z.string().min(1, "Gate type is required"),
   frameColor: z.enum(['galvanized', 'black']),
+  includeHorizontalBrace: z.boolean().optional().default(true),
+  includeVerticalBrace: z.boolean().optional().default(true),
 });
 export type PipeCutCalculatorInput = z.infer<typeof PipeCutCalculatorSchema>;
 

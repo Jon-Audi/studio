@@ -77,7 +77,7 @@ export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCal
 
 
 export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculatorResult {
-  const { calculationMode, gateWidth, gateHeight, frameDiameter, gateType, frameColor } = data;
+  const { calculationMode, gateWidth, gateHeight, frameDiameter, gateType, frameColor, includeHorizontalBrace, includeVerticalBrace } = data;
   const numericGateWidth = Number(gateWidth);
   const numericGateHeight = Number(gateHeight);
   
@@ -133,17 +133,17 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
     requiredOpening,
   };
 
-  // Horizontal brace for gates over 48" tall
-  if (frameHeight > 48) {
+  // Horizontal brace for gates over 48" tall, if included
+  if (frameHeight > 48 && includeHorizontalBrace) {
     const internalLeafWidth = leafWidth - (numericFrameDiameter * 2);
     result.horizontalBraceLength = parseFloat(internalLeafWidth.toFixed(2));
     totalPipeInches += result.horizontalBraceLength * leafs;
   }
 
-  // Vertical brace for gates over 60" wide
-  if (frameWidth > 60) {
+  // Vertical brace for gates over 60" wide, if included
+  if (frameWidth > 60 && includeVerticalBrace) {
     const internalLeafHeight = frameHeight - (numericFrameDiameter * 2);
-    const bracePieceLength = (internalLeafHeight - numericFrameDiameter) / 2;
+    const bracePieceLength = (internalLeafHeight - (includeHorizontalBrace ? numericFrameDiameter : 0)) / 2;
     result.verticalBracePieces = {
       count: 2,
       length: parseFloat(bracePieceLength.toFixed(2)),
