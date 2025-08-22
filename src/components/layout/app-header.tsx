@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { DelawareFenceSolutionsLogoIcon } from '@/components/icons/delaware-fence-solutions-logo-icon';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Settings } from 'lucide-react';
 import { useTheme } from '@/context/theme-provider';
 import { useState, useEffect } from 'react';
 
@@ -46,6 +46,11 @@ export function AppHeader() {
           </span>
         </Link>
         <div className="ml-auto flex items-center space-x-2">
+           <Button asChild variant="ghost" size="icon" aria-label="Settings">
+              <Link href="/settings">
+                <Settings className="h-5 w-5" />
+              </Link>
+            </Button>
           <Button
             variant="ghost"
             size="icon"
