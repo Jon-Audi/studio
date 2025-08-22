@@ -8,12 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { 
-  BALL_FIELD_BACKSTOP_HEIGHT_OPTIONS,
-  BALL_FIELD_BACKSTOP_WIDTH_OPTIONS,
-  BALL_FIELD_FENCE_HEIGHT_OPTIONS,
-  SINGLE_GATE_WIDTH_OPTIONS
-} from '@/config/constants';
+import { CATALOG, DEFAULTS } from '@/config/catalog';
 import type { BallFieldCalculatorInput, BallFieldCalculatorResult, FullEstimateData } from '@/types';
 import { BallFieldCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -30,11 +25,11 @@ export function BallFieldCalculatorForm() {
   const form = useForm<BallFieldCalculatorInput>({
     resolver: zodResolver(BallFieldCalculatorSchema),
     defaultValues: {
-      backstopHeight: BALL_FIELD_BACKSTOP_HEIGHT_OPTIONS[1], // Default to 12'
-      backstopWidth: BALL_FIELD_BACKSTOP_WIDTH_OPTIONS[1], // Default to 20'
+      backstopHeight: DEFAULTS.BALL_FIELD.backstopHeight,
+      backstopWidth: DEFAULTS.BALL_FIELD.backstopWidth,
       sidelineLength: 150,
       homerunLength: 200,
-      fenceHeight: BALL_FIELD_FENCE_HEIGHT_OPTIONS[0], // Default to 4'
+      fenceHeight: DEFAULTS.BALL_FIELD.fenceHeight,
     },
   });
 
@@ -93,7 +88,7 @@ export function BallFieldCalculatorForm() {
                       <FormLabel>Backstop Height (ft)</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select height" /></SelectTrigger></FormControl>
-                        <SelectContent>{BALL_FIELD_BACKSTOP_HEIGHT_OPTIONS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
+                        <SelectContent>{CATALOG.BALL_FIELD.BACKSTOP_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
@@ -107,7 +102,7 @@ export function BallFieldCalculatorForm() {
                       <FormLabel>Backstop Center Width (ft)</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                        <SelectContent>{BALL_FIELD_BACKSTOP_WIDTH_OPTIONS.map(w => <SelectItem key={w} value={w}>{w}'</SelectItem>)}</SelectContent>
+                        <SelectContent>{CATALOG.BALL_FIELD.BACKSTOP_WIDTHS.map(w => <SelectItem key={w} value={w}>{w}'</SelectItem>)}</SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
@@ -150,7 +145,7 @@ export function BallFieldCalculatorForm() {
                       <FormLabel>Fence Height (ft)</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select height" /></SelectTrigger></FormControl>
-                        <SelectContent>{BALL_FIELD_FENCE_HEIGHT_OPTIONS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
+                        <SelectContent>{CATALOG.BALL_FIELD.FENCE_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>

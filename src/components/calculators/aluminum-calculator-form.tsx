@@ -8,12 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { 
-  FENCE_HEIGHT_OPTIONS, 
-  ALUMINUM_PANEL_WIDTH_OPTIONS,
-  SINGLE_GATE_WIDTH_OPTIONS,
-  DOUBLE_GATE_WIDTH_OPTIONS
-} from '@/config/constants';
+import { CATALOG, DEFAULTS } from '@/config/catalog';
 import type { AluminumCalculatorInput, AluminumCalculatorResult, FullEstimateData } from '@/types';
 import { AluminumCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -31,8 +26,8 @@ export function AluminumCalculatorForm() {
     resolver: zodResolver(AluminumCalculatorSchema),
     defaultValues: {
       fenceLength: 100,
-      fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      panelWidth: ALUMINUM_PANEL_WIDTH_OPTIONS[0],
+      fenceHeight: DEFAULTS.ALUMINUM.fenceHeight,
+      panelWidth: DEFAULTS.ALUMINUM.panelWidth,
       ends: 2,
       corners: 0,
       singleGates: [],
@@ -113,7 +108,7 @@ export function AluminumCalculatorForm() {
                     <FormLabel>Fence Height (ft)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select height" /></SelectTrigger></FormControl>
-                      <SelectContent>{FENCE_HEIGHT_OPTIONS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.FENCE_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -127,7 +122,7 @@ export function AluminumCalculatorForm() {
                     <FormLabel>Panel Width (ft)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select panel width" /></SelectTrigger></FormControl>
-                      <SelectContent>{ALUMINUM_PANEL_WIDTH_OPTIONS.map(w => <SelectItem key={w} value={w}>{w}'</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.ALUMINUM.PANEL_WIDTHS.map(w => <SelectItem key={w} value={w}>{w}'</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -167,9 +162,9 @@ export function AluminumCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value || SINGLE_GATE_WIDTH_OPTIONS[0].value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DEFAULTS.ALUMINUM.singleGateWidth}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                          <SelectContent>{SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                          <SelectContent>{CATALOG.GENERIC_GATES.SINGLE_GATE_WIDTHS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -191,7 +186,7 @@ export function AluminumCalculatorForm() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: SINGLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: DEFAULTS.ALUMINUM.singleGateWidth, quantity: 1 })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Single Gate
               </Button>
             </div>
@@ -206,9 +201,9 @@ export function AluminumCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value || DOUBLE_GATE_WIDTH_OPTIONS[0].value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DEFAULTS.ALUMINUM.doubleGateWidth}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                          <SelectContent>{DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                          <SelectContent>{CATALOG.GENERIC_GATES.DOUBLE_GATE_WIDTHS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -230,7 +225,7 @@ export function AluminumCalculatorForm() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: DOUBLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: DEFAULTS.ALUMINUM.doubleGateWidth, quantity: 1 })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Double Gate
               </Button>
             </div>

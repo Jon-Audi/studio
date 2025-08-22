@@ -8,12 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import {
-  SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS,
-  SPLIT_RAIL_POST_SPACING_OPTIONS, 
-  SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS,
-  SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS
-} from '@/config/constants';
+import { CATALOG, DEFAULTS } from '@/config/catalog';
 import type { SplitRailCalculatorInput, SplitRailCalculatorResult, FullEstimateData } from '@/types';
 import { SplitRailCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -39,8 +34,8 @@ export function SplitRailCalculatorForm() {
     resolver: zodResolver(SplitRailCalculatorSchema),
     defaultValues: {
       fenceLength: 100,
-      numRailsPerSection: SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS[0],
-      postSpacing: SPLIT_RAIL_POST_SPACING_OPTIONS[0].value, 
+      numRailsPerSection: DEFAULTS.SPLIT_RAIL.numRailsPerSection,
+      postSpacing: DEFAULTS.SPLIT_RAIL.postSpacing,
       ends: 2,
       corners: 0,
       singleGates: [],
@@ -61,7 +56,7 @@ export function SplitRailCalculatorForm() {
   function onSubmit(data: SplitRailCalculatorInput) {
     setFormInputs(data);
     // Ensure postSpacing is explicitly set, even if the field is disabled, to avoid zod errors if it's somehow undefined.
-    const dataWithFixedPostSpacing = { ...data, postSpacing: data.postSpacing || SPLIT_RAIL_POST_SPACING_OPTIONS[0].value };
+    const dataWithFixedPostSpacing = { ...data, postSpacing: data.postSpacing || DEFAULTS.SPLIT_RAIL.postSpacing };
     const calculatedResults = calculateSplitRail(dataWithFixedPostSpacing);
     setResults(calculatedResults);
   }
@@ -123,7 +118,7 @@ export function SplitRailCalculatorForm() {
                     <FormLabel>Rails per Section</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select rails per section" /></SelectTrigger></FormControl>
-                      <SelectContent>{SPLIT_RAIL_RAILS_PER_SECTION_OPTIONS.map(r => <SelectItem key={r} value={r}>{r}-Rail</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.SPLIT_RAIL.RAILS_PER_SECTION.map(r => <SelectItem key={r} value={r}>{r}-Rail</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -137,7 +132,7 @@ export function SplitRailCalculatorForm() {
                     <FormLabel>Post Spacing (ft)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select post spacing" /></SelectTrigger></FormControl>
-                      <SelectContent>{SPLIT_RAIL_POST_SPACING_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.SPLIT_RAIL.POST_SPACING.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -177,9 +172,9 @@ export function SplitRailCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value || SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS[0].value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DEFAULTS.SPLIT_RAIL.singleGateWidth}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                          <SelectContent>{SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                          <SelectContent>{CATALOG.SPLIT_RAIL.SINGLE_GATE_WIDTHS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -201,7 +196,7 @@ export function SplitRailCalculatorForm() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: SPLIT_RAIL_SINGLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: DEFAULTS.SPLIT_RAIL.singleGateWidth, quantity: 1 })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Single Gate
               </Button>
             </div>
@@ -216,9 +211,9 @@ export function SplitRailCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value || SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS[0].value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DEFAULTS.SPLIT_RAIL.doubleGateWidth}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                          <SelectContent>{SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                          <SelectContent>{CATALOG.SPLIT_RAIL.DOUBLE_GATE_WIDTHS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -240,7 +235,7 @@ export function SplitRailCalculatorForm() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: SPLIT_RAIL_DOUBLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: DEFAULTS.SPLIT_RAIL.doubleGateWidth, quantity: 1 })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Double Gate
               </Button>
             </div>

@@ -8,14 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import {
-  FENCE_HEIGHT_OPTIONS,
-  WOOD_POST_SPACING_OPTIONS,
-  PICKET_WIDTH_OPTIONS,
-  WOOD_NUM_RAILS_OPTIONS,
-  SINGLE_GATE_WIDTH_OPTIONS,
-  DOUBLE_GATE_WIDTH_OPTIONS
-} from '@/config/constants';
+import { CATALOG, DEFAULTS } from '@/config/catalog';
 import type { WoodCalculatorInput, WoodCalculatorResult, FullEstimateData } from '@/types';
 import { WoodCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -33,10 +26,10 @@ export function WoodCalculatorForm() {
     resolver: zodResolver(WoodCalculatorSchema),
     defaultValues: {
       fenceLength: 100,
-      fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      postSpacing: WOOD_POST_SPACING_OPTIONS.includes('8') ? '8' : WOOD_POST_SPACING_OPTIONS[0],
-      picketWidth: PICKET_WIDTH_OPTIONS[0].value,
-      numRails: WOOD_NUM_RAILS_OPTIONS[0],
+      fenceHeight: DEFAULTS.WOOD.fenceHeight,
+      postSpacing: DEFAULTS.WOOD.postSpacing,
+      picketWidth: DEFAULTS.WOOD.picketWidth,
+      numRails: DEFAULTS.WOOD.numRails,
       ends: 2,
       corners: 0,
       singleGates: [],
@@ -117,7 +110,7 @@ export function WoodCalculatorForm() {
                     <FormLabel>Fence Height (ft)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select height" /></SelectTrigger></FormControl>
-                      <SelectContent>{FENCE_HEIGHT_OPTIONS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.FENCE_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +124,7 @@ export function WoodCalculatorForm() {
                     <FormLabel>Post Spacing (ft)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select spacing" /></SelectTrigger></FormControl>
-                      <SelectContent>{WOOD_POST_SPACING_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}'</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.WOOD.POST_SPACINGS.map(s => <SelectItem key={s} value={s}>{s}'</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -145,7 +138,7 @@ export function WoodCalculatorForm() {
                     <FormLabel>Picket Width</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select picket width" /></SelectTrigger></FormControl>
-                      <SelectContent>{PICKET_WIDTH_OPTIONS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.WOOD.PICKET_WIDTHS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -159,7 +152,7 @@ export function WoodCalculatorForm() {
                     <FormLabel>Number of Rails</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select rails" /></SelectTrigger></FormControl>
-                      <SelectContent>{WOOD_NUM_RAILS_OPTIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                      <SelectContent>{CATALOG.WOOD.NUM_RAILS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -199,9 +192,9 @@ export function WoodCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value || SINGLE_GATE_WIDTH_OPTIONS[0].value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DEFAULTS.WOOD.singleGateWidth}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                          <SelectContent>{SINGLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                          <SelectContent>{CATALOG.GENERIC_GATES.SINGLE_GATE_WIDTHS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -223,7 +216,7 @@ export function WoodCalculatorForm() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: SINGLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => singleGateAppend({ width: DEFAULTS.WOOD.singleGateWidth, quantity: 1 })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Single Gate
               </Button>
             </div>
@@ -238,9 +231,9 @@ export function WoodCalculatorForm() {
                     render={({ field: f }) => (
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Width</FormLabel>
-                        <Select onValueChange={f.onChange} defaultValue={f.value || DOUBLE_GATE_WIDTH_OPTIONS[0].value}>
+                        <Select onValueChange={f.onChange} defaultValue={f.value || DEFAULTS.WOOD.doubleGateWidth}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select width" /></SelectTrigger></FormControl>
-                          <SelectContent>{DOUBLE_GATE_WIDTH_OPTIONS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
+                          <SelectContent>{CATALOG.GENERIC_GATES.DOUBLE_GATE_WIDTHS.map(w => <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -262,7 +255,7 @@ export function WoodCalculatorForm() {
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: DOUBLE_GATE_WIDTH_OPTIONS[0].value, quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => doubleGateAppend({ width: DEFAULTS.WOOD.doubleGateWidth, quantity: 1 })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Double Gate
               </Button>
             </div>

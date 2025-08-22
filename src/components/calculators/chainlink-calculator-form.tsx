@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { FENCE_HEIGHT_OPTIONS, FENCE_TYPE_OPTIONS } from '@/config/constants';
+import { CATALOG, DEFAULTS } from '@/config/catalog';
 import type { ChainlinkCalculatorInput, ChainlinkCalculatorResult, FullEstimateData } from '@/types';
 import { ChainlinkCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -26,8 +26,8 @@ export function ChainlinkCalculatorForm() {
     resolver: zodResolver(ChainlinkCalculatorSchema),
     defaultValues: {
       fenceLength: 100,
-      fenceHeight: FENCE_HEIGHT_OPTIONS[0],
-      fenceType: FENCE_TYPE_OPTIONS[0],
+      fenceHeight: DEFAULTS.CHAINLINK.fenceHeight,
+      fenceType: DEFAULTS.CHAINLINK.fenceType,
       ends: 2,
       corners: 0,
     },
@@ -103,7 +103,7 @@ export function ChainlinkCalculatorForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {FENCE_HEIGHT_OPTIONS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}
+                        {CATALOG.FENCE_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}'</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -123,7 +123,7 @@ export function ChainlinkCalculatorForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {FENCE_TYPE_OPTIONS.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+                        {CATALOG.CHAINLINK.FENCE_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />

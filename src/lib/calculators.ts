@@ -9,7 +9,7 @@ import type {
   BallFieldCalculatorInput, BallFieldCalculatorResult,
   GateEntry
 } from '@/types';
-import { PIPE_PRICING } from '@/config/constants';
+import { CATALOG } from '@/config/catalog';
 
 
 export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCalculatorResult {
@@ -81,7 +81,7 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const numericGateWidth = Number(gateWidth);
   const numericGateHeight = Number(gateHeight);
   
-  const pricePerFoot = PIPE_PRICING[frameColor]?.[frameDiameter] || 0;
+  const pricePerFoot = CATALOG.GATE_PIPE.PRICING[frameColor]?.[frameDiameter] || 0;
 
   let totalDeduction = 0;
   let numericFrameDiameter = 0;

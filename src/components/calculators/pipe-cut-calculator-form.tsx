@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { GATE_FRAME_DIAMETER_OPTIONS, GATE_TYPE_OPTIONS, GATE_FRAME_COLOR_OPTIONS } from '@/config/constants';
+import { CATALOG, DEFAULTS } from '@/config/catalog';
 import type { PipeCutCalculatorInput, PipeCutCalculatorResult, FullEstimateData } from '@/types';
 import { PipeCutCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -31,9 +31,9 @@ export function PipeCutCalculatorForm() {
       calculationMode: 'opening',
       gateWidth: 48, // inches
       gateHeight: 48, // inches
-      frameDiameter: GATE_FRAME_DIAMETER_OPTIONS[0],
-      gateType: GATE_TYPE_OPTIONS[0],
-      frameColor: 'galvanized',
+      frameDiameter: DEFAULTS.GATE_PIPE.frameDiameter,
+      gateType: DEFAULTS.GATE_PIPE.gateType,
+      frameColor: DEFAULTS.GATE_PIPE.frameColor,
       includeHorizontalBrace: true,
       includeVerticalBrace: true,
     },
@@ -194,7 +194,7 @@ export function PipeCutCalculatorForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {GATE_FRAME_COLOR_OPTIONS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                          {CATALOG.GATE_PIPE.FRAME_COLORS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -214,7 +214,7 @@ export function PipeCutCalculatorForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {GATE_FRAME_DIAMETER_OPTIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                          {CATALOG.GATE_PIPE.FRAME_DIAMETERS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -234,7 +234,7 @@ export function PipeCutCalculatorForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {GATE_TYPE_OPTIONS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                          {CATALOG.GATE_PIPE.GATE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
