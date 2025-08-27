@@ -1,7 +1,7 @@
 
 "use client";
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { ResultsCard } from '@/components/shared/results-card';
 import { calculateChainlink } from '@/lib/calculators';
 import { sendEstimateToInvoicingService } from '@/lib/actions';
 import { useToast } from "@/hooks/use-toast";
-import { Fence } from 'lucide-react';
+import { Fence, PlusCircle, Trash2 } from 'lucide-react';
 
 export function ChainlinkCalculatorForm() {
   const [results, setResults] = useState<ChainlinkCalculatorResult | null>(null);
@@ -25,13 +25,19 @@ export function ChainlinkCalculatorForm() {
   const form = useForm<ChainlinkCalculatorInput>({
     resolver: zodResolver(ChainlinkCalculatorSchema),
     defaultValues: {
-      fenceLength: 100,
+      runs: [{ length: 100 }],
       fenceHeight: DEFAULTS.CHAINLINK.fenceHeight,
       fenceType: DEFAULTS.CHAINLINK.fenceType,
       ends: 2,
       corners: 0,
     },
   });
+
+  const { fields: runFields, append: runAppend, remove: runRemove } = useFieldArray({
+    control: form.control,
+    name: "runs"
+  });
+
 
   function onSubmit(data: ChainlinkCalculatorInput) {
     setFormInputs(data);
@@ -57,9 +63,11 @@ export function ChainlinkCalculatorForm() {
     return response;
   };
 
+  const totalFenceLength = form.watch('runs').reduce((acc, run) => acc + (Number(run.length) || 0), 0);
+
   const fullEstimateData: FullEstimateData | undefined = formInputs && results ? {
     calculatorType: "Chainlink",
-    inputs: formInputs,
+    inputs: {...formInputs, totalFenceLength },
     results: results,
     timestamp: new Date().toISOString(),
   } : undefined;
@@ -71,25 +79,44 @@ export function ChainlinkCalculatorForm() {
           <Fence className="h-8 w-8 text-primary" />
           <CardTitle className="text-2xl font-headline">Chain-link Fence Calculator</CardTitle>
         </div>
-        <CardDescription>Enter your fence specifications to calculate required materials.</CardDescription>
+        <CardDescription>Add multiple fence runs and your specifications to calculate required materials.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <FormLabel>Fence Runs (ft)</FormLabel>
+                <div className="text-sm font-medium">Total Length: <span className="text-primary font-bold">{totalFenceLength} ft</span></div>
+              </div>
+              {runFields.map((field, index) => (
+                <div key={field.id} className="flex items-center space-x-2">
+                  <FormField
+                    control={form.control}
+                    name={`runs.${index}.length`}
+                    render={({ field: f }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                           <Input type="number" placeholder={`Run ${index + 1} length`} {...f} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   {runFields.length > 1 && (
+                    <Button type="button" variant="ghost" size="icon" onClick={() => runRemove(index)} className="text-destructive hover:text-destructive/80">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => runAppend({ length: 0 })}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Fence Run
+              </Button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="fenceLength"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fence Length (ft)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="e.g., 150" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="fenceHeight"
@@ -168,6 +195,7 @@ export function ChainlinkCalculatorForm() {
             <ResultsCard 
               title="Chain-link Fence Results" 
               data={{
+                'Total Fence Length': `${totalFenceLength} ft`,
                 'Line Posts': results.interiorLinePosts,
                 'Ends': results.userSpecifiedEnds,
                 'Corners': results.userSpecifiedCorners,

@@ -13,8 +13,9 @@ import { CATALOG } from '@/config/catalog';
 
 
 export function calculateChainlink(data: ChainlinkCalculatorInput): ChainlinkCalculatorResult {
-  const { fenceLength, fenceHeight, fenceType, ends = 0, corners = 0 } = data;
-  const numericFenceLength = Number(fenceLength);
+  const { runs = [], fenceHeight, fenceType, ends = 0, corners = 0 } = data;
+
+  const numericFenceLength = runs.reduce((acc, run) => acc + (Number(run.length) || 0), 0);
   const numericFenceHeight = parseInt(fenceHeight);
   const numericEnds = Number(ends);
   const numericCorners = Number(corners);

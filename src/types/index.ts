@@ -1,8 +1,12 @@
 
 import { z } from 'zod';
 
+const RunSchema = z.object({
+  length: z.coerce.number().min(0, 'Run length must be a positive number'),
+});
+
 export const ChainlinkCalculatorSchema = z.object({
-  fenceLength: z.coerce.number().min(0, "Fence length must be positive"),
+  runs: z.array(RunSchema).min(1, "At least one fence run is required."),
   fenceHeight: z.string().min(1, "Fence height is required"),
   fenceType: z.string().min(1, "Fence type is required"),
   ends: z.coerce.number().min(0, "Ends must be non-negative").optional().default(0),
