@@ -7,6 +7,7 @@ import type {
   AluminumCalculatorInput, AluminumCalculatorResult,
   SplitRailCalculatorInput, SplitRailCalculatorResult,
   BallFieldCalculatorInput, BallFieldCalculatorResult,
+  PicketCalculatorInput, PicketCalculatorResult,
   GateEntry
 } from '@/types';
 import { CATALOG } from '@/config/catalog';
@@ -503,4 +504,37 @@ export function calculateBallField(data: BallFieldCalculatorInput): BallFieldCal
         fenceHogRings,
         fenceTensionWireCoils,
     };
+}
+
+
+export function calculatePickets(data: PicketCalculatorInput): PicketCalculatorResult {
+  const { fenceOrientation, picketType, sectionWidth, sectionHeight } = data;
+  const numericPicketWidth = Number(picketType); // This is the actual width in inches
+  const numericSectionWidth = Number(sectionWidth); // in feet
+  const numericSectionHeight = Number(sectionHeight); // in feet
+
+  let picketsPerSection = 0;
+  let notes: string | undefined;
+
+  if (fenceOrientation === 'vertical') {
+    if (numericSectionWidth > 0 && numericPicketWidth > 0) {
+      // For vertical fences, calculate how many pickets fit across the width.
+      const sectionWidthInches = numericSectionWidth * 12;
+      picketsPerSection = Math.ceil(sectionWidthInches / numericPicketWidth);
+      notes = `Each picket is assumed to be ${numericSectionHeight} ft tall.`
+    }
+  } else { // horizontal
+    if (numericSectionHeight > 0 && numericPicketWidth > 0) {
+      // For horizontal fences, calculate how many pickets fit down the height.
+      const sectionHeightInches = numericSectionHeight * 12;
+      picketsPerSection = Math.ceil(sectionHeightInches / numericPicketWidth);
+      notes = `Each picket is assumed to be ${numericSectionWidth} ft long.`
+    }
+  }
+
+  return {
+    picketsPerSection,
+    totalPickets: picketsPerSection, // For a single section, this is the same.
+    notes,
+  };
 }

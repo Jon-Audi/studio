@@ -1,3 +1,4 @@
+
 // src/config/catalog.ts
 
 /**
@@ -192,5 +193,14 @@ export const DEFAULTS = {
       backstopHeight: CATALOG.BALL_FIELD.BACKSTOP_HEIGHTS[1], // 12'
       backstopWidth: CATALOG.BALL_FIELD.BACKSTOP_WIDTHS[1], // 20'
       fenceHeight: CATALOG.BALL_FIELD.FENCE_HEIGHTS[0], // 4'
+  },
+  /**
+   * Picket Calculator Defaults
+   */
+  PICKET: {
+    fenceOrientation: 'vertical',
+    picketType: CATALOG.WOOD.PICKET_WIDTHS[0].value,
+    sectionWidth: 8,
+    sectionHeight: 6,
   }
 };

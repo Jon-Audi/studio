@@ -212,6 +212,19 @@ export interface BallFieldCalculatorResult {
   fenceTensionWireCoils: number;
 }
 
+export const PicketCalculatorSchema = z.object({
+  fenceOrientation: z.enum(['vertical', 'horizontal']).default('vertical'),
+  picketType: z.string().min(1, 'Picket type is required'),
+  sectionWidth: z.coerce.number().min(1, 'Section width must be positive'),
+  sectionHeight: z.coerce.number().min(1, 'Section height must be positive'),
+});
+export type PicketCalculatorInput = z.infer<typeof PicketCalculatorSchema>;
+
+export interface PicketCalculatorResult {
+  picketsPerSection: number;
+  totalPickets: number;
+  notes?: string;
+}
 
 export const UnitConverterSchema = z.object({
   value: z.coerce.number(),
