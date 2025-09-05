@@ -202,5 +202,8 @@ export const DEFAULTS = {
     picketType: CATALOG.WOOD.PICKET_WIDTHS[0].value,
     sectionWidth: 8,
     sectionHeight: 6,
+    numRails: 2,
+    pricePerPicket: 0,
+    pricePerBacker: 0,
   }
 };

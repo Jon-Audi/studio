@@ -217,12 +217,18 @@ export const PicketCalculatorSchema = z.object({
   picketType: z.string().min(1, 'Picket type is required'),
   sectionWidth: z.coerce.number().min(1, 'Section width must be positive'),
   sectionHeight: z.coerce.number().min(1, 'Section height must be positive'),
+  numRails: z.coerce.number().min(2, 'Sections must have at least 2 rails'),
+  pricePerPicket: z.coerce.number().optional().default(0),
+  pricePerBacker: z.coerce.number().optional().default(0),
 });
 export type PicketCalculatorInput = z.infer<typeof PicketCalculatorSchema>;
 
 export interface PicketCalculatorResult {
   picketsPerSection: number;
-  totalPickets: number;
+  backersPerSection: number;
+  picketCost?: number;
+  backerCost?: number;
+  totalSectionCost?: number;
   notes?: string;
 }
 

@@ -508,33 +508,54 @@ export function calculateBallField(data: BallFieldCalculatorInput): BallFieldCal
 
 
 export function calculatePickets(data: PicketCalculatorInput): PicketCalculatorResult {
-  const { fenceOrientation, picketType, sectionWidth, sectionHeight } = data;
+  const { fenceOrientation, picketType, sectionWidth, sectionHeight, numRails, pricePerPicket, pricePerBacker } = data;
   const numericPicketWidth = Number(picketType); // This is the actual width in inches
   const numericSectionWidth = Number(sectionWidth); // in feet
   const numericSectionHeight = Number(sectionHeight); // in feet
+  const numericNumRails = Number(numRails);
+  const numericPricePerPicket = Number(pricePerPicket) || 0;
+  const numericPricePerBacker = Number(pricePerBacker) || 0;
 
   let picketsPerSection = 0;
   let notes: string | undefined;
 
   if (fenceOrientation === 'vertical') {
     if (numericSectionWidth > 0 && numericPicketWidth > 0) {
-      // For vertical fences, calculate how many pickets fit across the width.
       const sectionWidthInches = numericSectionWidth * 12;
       picketsPerSection = Math.ceil(sectionWidthInches / numericPicketWidth);
       notes = `Each picket is assumed to be ${numericSectionHeight} ft tall.`
     }
   } else { // horizontal
     if (numericSectionHeight > 0 && numericPicketWidth > 0) {
-      // For horizontal fences, calculate how many pickets fit down the height.
       const sectionHeightInches = numericSectionHeight * 12;
       picketsPerSection = Math.ceil(sectionHeightInches / numericPicketWidth);
       notes = `Each picket is assumed to be ${numericSectionWidth} ft long.`
     }
   }
 
+  // Calculate backers
+  const totalRailLength = numericSectionWidth * numericNumRails;
+  const backersPerSection = Math.ceil(totalRailLength / 8); // Assuming 8ft backers (2x4x8)
+
+  // Calculate costs
+  const picketCost = picketsPerSection > 0 && numericPricePerPicket > 0 
+    ? parseFloat((picketsPerSection * numericPricePerPicket).toFixed(2)) 
+    : undefined;
+    
+  const backerCost = backersPerSection > 0 && numericPricePerBacker > 0
+    ? parseFloat((backersPerSection * numericPricePerBacker).toFixed(2))
+    : undefined;
+
+  const totalSectionCost = picketCost || backerCost 
+    ? parseFloat(((picketCost || 0) + (backerCost || 0)).toFixed(2))
+    : undefined;
+
   return {
     picketsPerSection,
-    totalPickets: picketsPerSection, // For a single section, this is the same.
+    backersPerSection,
+    picketCost,
+    backerCost,
+    totalSectionCost,
     notes,
   };
 }

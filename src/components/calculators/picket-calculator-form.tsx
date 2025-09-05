@@ -65,7 +65,7 @@ export function PicketCalculatorForm() {
           <Shapes className="h-8 w-8 text-primary" />
           <CardTitle className="text-2xl font-headline">Picket Calculator</CardTitle>
         </div>
-        <CardDescription>Calculate the number of pickets for regular or horizontal fences.</CardDescription>
+        <CardDescription>Calculate the number and cost of pickets and backers for a fence section.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -124,10 +124,51 @@ export function PicketCalculatorForm() {
                   </FormItem>
                 )}
               />
+               <FormField
+                control={form.control}
+                name="numRails"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Rails</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select rails" /></SelectTrigger></FormControl>
+                      <SelectContent>{CATALOG.WOOD.NUM_RAILS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="p-4 border rounded-lg">
+                 <h3 className="text-lg font-semibold mb-4">Pricing (Optional)</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="pricePerPicket"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Price per Picket</FormLabel>
+                            <FormControl><Input type="number" placeholder="e.g., 2.50" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="pricePerBacker"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Price per Backer (2x4x8)</FormLabel>
+                            <FormControl><Input type="number" placeholder="e.g., 4.75" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                 </div>
             </div>
 
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Calculator className="mr-2 h-4 w-4" /> Calculate Pickets
+              <Calculator className="mr-2 h-4 w-4" /> Calculate
             </Button>
           </form>
         </Form>
@@ -138,7 +179,10 @@ export function PicketCalculatorForm() {
                 title="Picket Calculation Results" 
                 data={{
                     'Pickets per Section': results.picketsPerSection,
-                    'Total Pickets Needed': results.totalPickets,
+                    'Backers per Section': results.backersPerSection,
+                    'Picket Cost': results.picketCost ? `$${results.picketCost}` : undefined,
+                    'Backer Cost': results.backerCost ? `$${results.backerCost}` : undefined,
+                    'Total Section Cost': results.totalSectionCost ? `$${results.totalSectionCost}` : undefined,
                     'Notes': results.notes,
                 }} 
                 onSendToInvoice={handleSendToInvoice}
