@@ -232,6 +232,27 @@ export interface PicketCalculatorResult {
   notes?: string;
 }
 
+export const CantileverGateCalculatorSchema = z.object({
+  openingSize: z.coerce.number().min(1, "Opening size must be a positive number"),
+  gateHeight: z.coerce.number().min(1, "Gate height must be a positive number"),
+  includeDiagonalBrace: z.boolean().default(true),
+});
+export type CantileverGateCalculatorInput = z.infer<typeof CantileverGateCalculatorSchema>;
+
+export interface CantileverGateCalculatorResult {
+  totalFrameLength: number;
+  counterBalanceLength: number;
+  topAndBottomRails: { count: number; length: number };
+  verticalUprights: { count: number; length: number; spacing: number };
+  diagonalBraceLength?: number;
+  cantileverRollers: number;
+  gateRollerPosts: { count: number; size: string; placement: number };
+  catchPost: { count: number; size: string };
+  fabricNeeded: number; // in linear feet
+  tensionBars: number;
+  tieWires: number;
+}
+
 export const UnitConverterSchema = z.object({
   value: z.coerce.number(),
   fromUnit: z.string(),

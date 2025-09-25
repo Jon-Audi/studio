@@ -8,6 +8,7 @@ import type {
   SplitRailCalculatorInput, SplitRailCalculatorResult,
   BallFieldCalculatorInput, BallFieldCalculatorResult,
   PicketCalculatorInput, PicketCalculatorResult,
+  CantileverGateCalculatorInput, CantileverGateCalculatorResult,
   GateEntry
 } from '@/types';
 import { CATALOG } from '@/config/catalog';
@@ -557,5 +558,75 @@ export function calculatePickets(data: PicketCalculatorInput): PicketCalculatorR
     backerCost,
     totalSectionCost,
     notes,
+  };
+}
+
+export function calculateCantileverGate(data: CantileverGateCalculatorInput): CantileverGateCalculatorResult {
+  const { openingSize, gateHeight, includeDiagonalBrace } = data;
+  const numericOpeningSize = Number(openingSize);
+  const numericGateHeight = Number(gateHeight);
+
+  // Counterbalance length = ½ of true opening size
+  const counterBalanceLength = numericOpeningSize * 0.5;
+
+  // Total frame length is the opening plus the counterbalance
+  const totalFrameLength = numericOpeningSize + counterBalanceLength;
+
+  // Top & Bottom Rails: 2 ½" SS40 pipe
+  const topAndBottomRails = {
+    count: 2,
+    length: parseFloat(totalFrameLength.toFixed(2)),
+  };
+
+  // Uprights: 2" SS40 pipe, spaced ~4’ apart
+  const uprightSpacing = 4; // 4 feet
+  const numUprights = Math.floor(totalFrameLength / uprightSpacing) + 1;
+  const verticalUprights = {
+    count: numUprights,
+    length: numericGateHeight,
+    spacing: uprightSpacing,
+  };
+
+  // Optional diagonal brace (2") to prevent sag, especially on gates wider than 20’
+  let diagonalBraceLength: number | undefined;
+  if (numericOpeningSize > 20 && includeDiagonalBrace) {
+    // Assuming brace runs from a corner across one or more sections.
+    // For simplicity, we'll calculate a brace for the first section of the counterbalance.
+    const braceBase = uprightSpacing;
+    const braceHeight = numericGateHeight;
+    diagonalBraceLength = parseFloat(Math.sqrt(braceBase ** 2 + braceHeight ** 2).toFixed(2));
+  }
+  
+  // Gate Hardware
+  const cantileverRollers = 4; // Two top, two bottom
+
+  // Posts: 4” or 6 5/8” SS40 pipe
+  const postSize = "4” or 6 5/8” SS40";
+  // Second post ~½ gate length back
+  const rollerPostPlacement = parseFloat((totalFrameLength / 2).toFixed(2));
+  const gateRollerPosts = {
+    count: 2,
+    size: postSize,
+    placement: rollerPostPlacement,
+  };
+  const catchPost = { count: 1, size: postSize };
+
+  // Chain-Link Fill
+  const fabricNeeded = totalFrameLength;
+  const tensionBars = 2; // One for each end of the frame
+  const tieWires = Math.ceil(totalFrameLength * 1.5 * 2); // Top and bottom rail
+
+  return {
+    totalFrameLength,
+    counterBalanceLength,
+    topAndBottomRails,
+    verticalUprights,
+    diagonalBraceLength,
+    cantileverRollers,
+    gateRollerPosts,
+    catchPost,
+    fabricNeeded,
+    tensionBars,
+    tieWires,
   };
 }
