@@ -235,6 +235,7 @@ export interface PicketCalculatorResult {
 export const CantileverGateCalculatorSchema = z.object({
   openingSize: z.coerce.number().min(1, "Opening size must be a positive number"),
   gateHeight: z.coerce.number().min(1, "Gate height must be a positive number"),
+  gateType: z.enum(['single', 'double']).default('single'),
   includeDiagonalBrace: z.boolean().default(true),
 });
 export type CantileverGateCalculatorInput = z.infer<typeof CantileverGateCalculatorSchema>;
@@ -277,3 +278,5 @@ export interface FullEstimateData {
   results: any; // Could be more specific with a union of all result types
   timestamp: string;
 }
+
+    

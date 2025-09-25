@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { CantileverGateCalculatorInput, CantileverGateCalculatorResult, FullEstimateData } from '@/types';
 import { CantileverGateCalculatorSchema } from '@/types';
 import { ResultsCard } from '@/components/shared/results-card';
@@ -27,11 +28,13 @@ export function CantileverGateCalculatorForm() {
     defaultValues: {
       openingSize: 20,
       gateHeight: 6,
+      gateType: 'single',
       includeDiagonalBrace: true,
     },
   });
 
   const openingSize = form.watch("openingSize");
+  const gateType = form.watch("gateType");
 
   function onSubmit(data: CantileverGateCalculatorInput) {
     setFormInputs(data);
@@ -66,6 +69,8 @@ export function CantileverGateCalculatorForm() {
     results: results,
     timestamp: new Date().toISOString(),
   } : undefined;
+  
+  const effectiveOpeningSize = gateType === 'double' ? openingSize / 2 : openingSize;
 
   return (
     <>
@@ -81,6 +86,23 @@ export function CantileverGateCalculatorForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <FormField
+                  control={form.control}
+                  name="gateType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gate Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                         <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="single">Single Gate</SelectItem>
+                          <SelectItem value="double">Double Gate</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="openingSize"
@@ -105,7 +127,7 @@ export function CantileverGateCalculatorForm() {
                 />
               </div>
 
-              {openingSize > 20 && (
+              {effectiveOpeningSize > 20 && (
                 <FormField
                   control={form.control}
                   name="includeDiagonalBrace"
@@ -117,7 +139,7 @@ export function CantileverGateCalculatorForm() {
                       <div className="space-y-1 leading-none">
                         <FormLabel>Include Diagonal Brace</FormLabel>
                         <p className="text-sm text-muted-foreground">
-                          Recommended for gates wider than 20'.
+                          Recommended for gate leaves wider than 20'.
                         </p>
                       </div>
                     </FormItem>
@@ -135,15 +157,16 @@ export function CantileverGateCalculatorForm() {
             <div className="mt-8 space-y-4">
               <ResultsCard
                 title="Cantilever Gate Material List"
+                description={gateType === 'double' ? 'Materials for two gate leaves' : undefined}
                 data={{
-                  'Total Frame Length': `${results.totalFrameLength} ft`,
-                  'Counterbalance Length': `${results.counterBalanceLength} ft`,
-                  'Top & Bottom Rails (2 ½" SS40)': `2 pieces @ ${results.topAndBottomRails.length} ft`,
+                  'Total Frame Length (per leaf)': `${results.totalFrameLength} ft`,
+                  'Counterbalance Length (per leaf)': `${results.counterBalanceLength} ft`,
+                  'Top & Bottom Rails (2 ½" SS40)': `${results.topAndBottomRails.count} pieces @ ${results.topAndBottomRails.length} ft`,
                   'Vertical Uprights (2" SS40)': `${results.verticalUprights.count} pieces @ ${results.verticalUprights.length} ft`,
                   'Diagonal Brace Length (2")': results.diagonalBraceLength ? `${results.diagonalBraceLength} ft` : 'Not required',
                   'Cantilever Rollers': results.cantileverRollers,
                   'Gate Roller Posts (4" or 6 5/8")': results.gateRollerPosts.count,
-                  'Catch Post (4" or 6 5/8")': results.catchPost.count,
+                  'Catch Post(s) (4" or 6 5/8")': results.catchPost.count,
                   'Chain-Link Fabric Needed': `${results.fabricNeeded} linear ft`,
                   'Tension Bars': results.tensionBars,
                   'Tie Wires (approx)': results.tieWires,
@@ -167,3 +190,5 @@ export function CantileverGateCalculatorForm() {
     </>
   );
 }
+
+    

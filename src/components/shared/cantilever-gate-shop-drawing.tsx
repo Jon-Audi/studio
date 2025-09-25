@@ -11,7 +11,7 @@ interface CantileverGateShopDrawingProps {
 }
 
 export function CantileverGateShopDrawing({ results, inputs }: CantileverGateShopDrawingProps) {
-  const { openingSize, gateHeight } = inputs;
+  const { openingSize, gateHeight, gateType } = inputs;
   const { 
     totalFrameLength, 
     counterBalanceLength,
@@ -22,14 +22,17 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
   } = results;
 
   const drawingWidth = 800; // pixels
-  const drawingHeight = (gateHeight / totalFrameLength) * drawingWidth;
-  const scale = drawingWidth / totalFrameLength;
+  const drawingHeight = (gateHeight / (gateType === 'double' ? totalFrameLength * 2 : totalFrameLength)) * drawingWidth;
+  const scale = drawingWidth / (gateType === 'double' ? totalFrameLength * 2 : totalFrameLength);
+
+  const leafOpeningSize = gateType === 'double' ? openingSize / 2 : openingSize;
+  const leafFrameWidth = totalFrameLength;
 
   const counterBalanceDrawingWidth = counterBalanceLength * scale;
-  const openingDrawingWidth = openingSize * scale;
+  const openingDrawingWidth = leafOpeningSize * scale;
 
-  const uprightPositions = Array.from({ length: verticalUprights.count }).map((_, i) => {
-    return i * verticalUprights.spacing * scale;
+  const uprightPositions = Array.from({ length: Math.ceil(topAndBottomRails.count / (gateType === 'double' ? 2 : 1)) / (gateHeight > 0 ? (verticalUprights.count / (topAndBottomRails.count / 2)) : 1) }).map((_, i) => {
+      return i * verticalUprights.spacing * scale;
   });
 
   const rollerPostPlacement = gateRollerPosts.placement * scale;
@@ -40,7 +43,7 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
     { qty: verticalUprights.count, length: `${verticalUprights.length}'`, description: `Vertical Uprights (2" SS40)` },
   ];
   if (diagonalBraceLength) {
-     cutList.push({ qty: 1, length: `${diagonalBraceLength}'`, description: 'Diagonal Brace (2")' });
+     cutList.push({ qty: (gateType === 'double' ? 2 : 1), length: `${diagonalBraceLength}'`, description: 'Diagonal Brace (2")' });
   }
 
   return (
@@ -50,23 +53,26 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
           <div className="flex justify-between items-start">
             <div>
               <CardTitle className="text-3xl font-bold">Cantilever Gate Shop Drawing</CardTitle>
-              <CardDescription className="text-base">For Fabrication - All measurements in feet</CardDescription>
+              <CardDescription className="text-base">
+                {gateType === 'double' ? 'For Fabrication - Drawing shows ONE of TWO identical leaves.' : 'For Fabrication - All measurements in feet'}
+              </CardDescription>
             </div>
             <DelawareFenceSolutionsLogoIcon className="h-12 w-auto" />
           </div>
            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm pt-4">
-            <div className="font-semibold">Opening Size:</div><div>{openingSize}'</div>
+            <div className="font-semibold">Total Opening Size:</div><div>{openingSize}'</div>
             <div className="font-semibold">Gate Height:</div><div>{gateHeight}'</div>
-            <div className="font-semibold">Total Frame Length:</div><div>{totalFrameLength}'</div>
+            <div className="font-semibold">Gate Type:</div><div className="capitalize">{gateType}</div>
+            <div className="font-semibold">Frame Length (per leaf):</div><div>{leafFrameWidth}'</div>
           </div>
         </CardHeader>
         <CardContent>
           {/* Main Drawing Area */}
           <div className="mb-6 p-4 border-2 border-dashed border-muted-foreground overflow-x-auto">
-            <div className="relative mx-auto" style={{ width: drawingWidth, height: drawingHeight + 80 }}>
+            <div className="relative mx-auto" style={{ width: leafFrameWidth * scale, height: drawingHeight + 80 }}>
 
               {/* Gate Frame */}
-              <div className="absolute border-4 border-foreground bg-background" style={{ width: drawingWidth, height: drawingHeight }}>
+              <div className="absolute border-4 border-foreground bg-background" style={{ width: leafFrameWidth * scale, height: drawingHeight }}>
                 {/* Top and Bottom Rails */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-foreground"></div>
                 <div className="absolute bottom-0 left-0 w-full h-2 bg-foreground"></div>
@@ -77,7 +83,7 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
                 ))}
                 
                 {/* Diagonal Brace */}
-                {diagonalBraceLength && openingSize > 20 && (
+                {diagonalBraceLength && leafOpeningSize > 20 && (
                     <div className="absolute top-0 w-2 bg-foreground/80 origin-top-left" 
                          style={{ 
                              height: Math.sqrt(drawingHeight**2 + (verticalUprights.spacing * scale)**2),
@@ -97,11 +103,11 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
                 <div className="h-1 border-t-2 border-red-500 mx-1"></div>
               </div>
               <div className="absolute -top-10" style={{ left: counterBalanceDrawingWidth, width: openingDrawingWidth }}>
-                <div className="text-center text-sm font-semibold">Opening: {openingSize}'</div>
+                <div className="text-center text-sm font-semibold">Opening (leaf): {leafOpeningSize}'</div>
                 <div className="h-1 border-t-2 border-foreground mx-1"></div>
               </div>
               <div className="absolute -top-16 left-0 w-full">
-                <div className="text-center text-lg font-bold">Total Frame Length: {totalFrameLength}'</div>
+                <div className="text-center text-lg font-bold">Frame Length: {leafFrameWidth}'</div>
                 <div className="flex justify-center items-center">
                     <div className="border-t-2 border-b-2 border-l-2 border-foreground h-4 w-1"></div>
                     <div className="flex-grow border-t-2 border-foreground"></div>
@@ -127,7 +133,7 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
 
           {/* Cut List Table */}
           <div>
-            <h3 className="text-xl font-bold mb-2">Cut List</h3>
+            <h3 className="text-xl font-bold mb-2">Total Cut List for {gateType === 'double' ? 'Two Gates' : 'Gate'}</h3>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -156,3 +162,5 @@ export function CantileverGateShopDrawing({ results, inputs }: CantileverGateSho
     </div>
   );
 }
+
+    

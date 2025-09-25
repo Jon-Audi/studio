@@ -562,66 +562,80 @@ export function calculatePickets(data: PicketCalculatorInput): PicketCalculatorR
 }
 
 export function calculateCantileverGate(data: CantileverGateCalculatorInput): CantileverGateCalculatorResult {
-  const { openingSize, gateHeight, includeDiagonalBrace } = data;
+  const { openingSize, gateHeight, gateType, includeDiagonalBrace } = data;
   const numericOpeningSize = Number(openingSize);
   const numericGateHeight = Number(gateHeight);
+  const isDoubleGate = gateType === 'double';
 
-  // Counterbalance length = ½ of true opening size
-  const counterBalanceLength = numericOpeningSize * 0.5;
+  const leafOpeningSize = isDoubleGate ? numericOpeningSize / 2 : numericOpeningSize;
 
-  // Total frame length is the opening plus the counterbalance
-  const totalFrameLength = numericOpeningSize + counterBalanceLength;
+  // Counterbalance length = ½ of true opening size (of one leaf)
+  const counterBalanceLength = leafOpeningSize * 0.5;
 
-  // Top & Bottom Rails: 2 ½" SS40 pipe
-  const topAndBottomRails = {
+  // Total frame length is the opening plus the counterbalance (for one leaf)
+  const totalFrameLength = leafOpeningSize + counterBalanceLength;
+
+  // Top & Bottom Rails for one leaf
+  const topAndBottomRailsPerLeaf = {
     count: 2,
     length: parseFloat(totalFrameLength.toFixed(2)),
   };
 
-  // Uprights: 2" SS40 pipe, spaced ~4’ apart
+  // Uprights for one leaf
   const uprightSpacing = 4; // 4 feet
-  const numUprights = Math.floor(totalFrameLength / uprightSpacing) + 1;
-  const verticalUprights = {
-    count: numUprights,
+  const numUprightsPerLeaf = Math.floor(totalFrameLength / uprightSpacing) + 1;
+  const verticalUprightsPerLeaf = {
+    count: numUprightsPerLeaf,
     length: numericGateHeight,
     spacing: uprightSpacing,
   };
 
-  // Optional diagonal brace (2") to prevent sag, especially on gates wider than 20’
+  // Optional diagonal brace for one leaf
   let diagonalBraceLength: number | undefined;
-  if (numericOpeningSize > 20 && includeDiagonalBrace) {
-    // Assuming brace runs from a corner across one or more sections.
-    // For simplicity, we'll calculate a brace for the first section of the counterbalance.
+  if (leafOpeningSize > 20 && includeDiagonalBrace) {
     const braceBase = uprightSpacing;
     const braceHeight = numericGateHeight;
     diagonalBraceLength = parseFloat(Math.sqrt(braceBase ** 2 + braceHeight ** 2).toFixed(2));
   }
   
   // Gate Hardware
-  const cantileverRollers = 4; // Two top, two bottom
-
-  // Posts: 4” or 6 5/8” SS40 pipe
+  const rollersPerLeaf = 4;
   const postSize = "4” or 6 5/8” SS40";
-  // Second post ~½ gate length back
   const rollerPostPlacement = parseFloat((totalFrameLength / 2).toFixed(2));
+  
+  // For a double gate, we need posts for both sides, but only one catch post in the middle (or two if they latch to each other)
+  // Let's assume two catch posts for a robust double gate setup.
+  const numLeaves = isDoubleGate ? 2 : 1;
+
   const gateRollerPosts = {
-    count: 2,
+    count: 2 * numLeaves,
     size: postSize,
     placement: rollerPostPlacement,
   };
-  const catchPost = { count: 1, size: postSize };
+  const catchPost = { 
+    count: isDoubleGate ? 2 : 1, 
+    size: postSize 
+  };
+  const cantileverRollers = rollersPerLeaf * numLeaves;
 
-  // Chain-Link Fill
-  const fabricNeeded = totalFrameLength;
-  const tensionBars = 2; // One for each end of the frame
-  const tieWires = Math.ceil(totalFrameLength * 1.5 * 2); // Top and bottom rail
+  // Chain-Link Fill for the entire setup
+  const fabricNeeded = totalFrameLength * numLeaves;
+  const tensionBars = 2 * numLeaves; // One for each end of each frame
+  const tieWires = Math.ceil(totalFrameLength * 1.5 * 2) * numLeaves;
 
   return {
-    totalFrameLength,
-    counterBalanceLength,
-    topAndBottomRails,
-    verticalUprights,
-    diagonalBraceLength,
+    totalFrameLength, // This is per leaf
+    counterBalanceLength, // Per leaf
+    topAndBottomRails: {
+      count: topAndBottomRailsPerLeaf.count * numLeaves,
+      length: topAndBottomRailsPerLeaf.length,
+    },
+    verticalUprights: {
+      count: verticalUprightsPerLeaf.count * numLeaves,
+      length: verticalUprightsPerLeaf.length,
+      spacing: verticalUprightsPerLeaf.spacing,
+    },
+    diagonalBraceLength, // This is per leaf, if applicable
     cantileverRollers,
     gateRollerPosts,
     catchPost,
@@ -630,3 +644,5 @@ export function calculateCantileverGate(data: CantileverGateCalculatorInput): Ca
     tieWires,
   };
 }
+
+    
