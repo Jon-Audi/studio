@@ -30,7 +30,7 @@ export const CATALOG = {
    */
   GATE_PIPE: {
     FRAME_DIAMETERS: ["1 3/8″", "1 5/8″", "2″"],
-    GATE_TYPES: ["Single", "Double", "Barrier"],
+    GATE_TYPES: ["Single", "Double", "Barrier", "Double Barrier"],
     FRAME_COLORS: [
       { value: 'galvanized', label: 'Galvanized' },
       { value: 'black', label: 'Black' }

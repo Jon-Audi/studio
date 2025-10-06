@@ -83,17 +83,18 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const { calculationMode, gateWidth, gateHeight, frameDiameter, gateType, frameColor, includeHorizontalBrace, includeVerticalBrace, hingeSideHeight, latchSideHeight } = data;
   const numericGateWidth = Number(gateWidth);
   const pricePerFoot = CATALOG.GATE_PIPE.PRICING[frameColor]?.[frameDiameter] || 0;
-  
+  const isBarrierGate = gateType === 'Barrier';
+
   let totalDeduction = 0;
   let numericFrameDiameter = 0;
   if (frameDiameter === "1 3/8″") { totalDeduction = 3; numericFrameDiameter = 1.375; }
   else if (frameDiameter === "1 5/8″") { totalDeduction = 3.5; numericFrameDiameter = 1.625; }
   else if (frameDiameter === "2″") { totalDeduction = 4; numericFrameDiameter = 2; }
-
-  const isSingleGate = gateType === "Single" || gateType === "Barrier";
-  const leafs = gateType === "Double" ? 2 : 1;
-  const doubleGateGap = gateType === "Double" ? 1 : 0;
-
+  
+  const isDouble = gateType.toLowerCase().includes('double');
+  const leafs = isDouble ? 2 : 1;
+  const doubleGateGap = isDouble ? 1 : 0;
+  
   let frameWidth, frameHeight = 0, requiredOpening, postSpacing;
 
   if (calculationMode === 'opening') {
@@ -109,10 +110,10 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   const adjustedFrameWidthForLeaves = frameWidth - doubleGateGap;
   const leafWidth = adjustedFrameWidthForLeaves / leafs;
 
-  const postCount = gateType === "Single" || gateType === "Barrier" ? 2 : (leafs === 2 ? 2 : 0);
+  const postCount = 2; // Always 2 posts for single, double, or barrier
   
   const result: PipeCutCalculatorResult = {
-    frameWidth,
+    frameWidth: parseFloat(leafWidth.toFixed(2)),
     frameHeight: 0, // Will be set below
     postCount,
     postSpacing,
@@ -123,11 +124,13 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
   let totalPipeInches = 0;
 
   // Barrier Gate specific calculations
-  if (gateType === 'Barrier' && hingeSideHeight && latchSideHeight) {
+  if (isBarrierGate && hingeSideHeight && latchSideHeight) {
     result.frameHeight = Number(hingeSideHeight);
     result.hingeSideHeight = Number(hingeSideHeight);
     result.latchSideHeight = Number(latchSideHeight);
-
+    
+    result.frameWidth = parseFloat(leafWidth.toFixed(2));
+    
     const heightDifference = result.hingeSideHeight - result.latchSideHeight;
     result.topRailLength = parseFloat(Math.sqrt(leafWidth ** 2 + heightDifference ** 2).toFixed(2));
     result.mainDiagonalBraceLength = parseFloat(Math.sqrt(leafWidth ** 2 + result.hingeSideHeight ** 2).toFixed(2));
@@ -136,7 +139,7 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
     const verticalBraceHeightAtMidpoint = result.latchSideHeight + (heightDifference / 2);
     result.barrierVerticalBraceLength = parseFloat(verticalBraceHeightAtMidpoint.toFixed(2));
 
-    totalPipeInches = (result.hingeSideHeight + result.latchSideHeight + result.topRailLength + result.mainDiagonalBraceLength + result.barrierVerticalBraceLength) * leafs;
+    totalPipeInches = (result.hingeSideHeight + result.latchSideHeight + result.topRailLength + result.mainDiagonalBraceLength + (result.barrierVerticalBraceLength || 0)) * leafs;
 
   } else { // Standard Gate calculations
     const numericGateHeight = Number(gateHeight);
@@ -160,14 +163,14 @@ export function calculatePipeCuts(data: PipeCutCalculatorInput): PipeCutCalculat
     }
 
     // Vertical brace for gates over 60" wide, if included
-    if (frameWidth > 60 && includeVerticalBrace) {
-      const internalLeafHeight = result.frameHeight - (numericFrameDiameter * 2);
-      const bracePieceLength = (internalLeafHeight - (includeHorizontalBrace ? numericFrameDiameter : 0)) / 2;
-      result.verticalBracePieces = {
-        count: 2,
-        length: parseFloat(bracePieceLength.toFixed(2)),
-      };
-      totalPipeInches += (result.verticalBracePieces.length * result.verticalBracePieces.count) * leafs;
+    if (leafWidth > 60 && includeVerticalBrace) {
+        const internalLeafHeight = result.frameHeight - (numericFrameDiameter * 2);
+        const bracePieceLength = (internalLeafHeight - (includeHorizontalBrace ? numericFrameDiameter : 0)) / 2;
+        result.verticalBracePieces = {
+            count: 2,
+            length: parseFloat(bracePieceLength.toFixed(2)),
+        };
+        totalPipeInches += (result.verticalBracePieces.length * result.verticalBracePieces.count) * leafs;
     }
   }
   

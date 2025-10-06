@@ -11,7 +11,7 @@ interface GateShopDrawingProps {
 }
 
 export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
-  const { gateWidth, frameDiameter, gateType, calculationMode } = inputs;
+  const { gateWidth, frameDiameter, gateType, calculationMode, gateHeight } = inputs;
   const { 
     uprightsLength, horizontalsLength, leafs, horizontalBraceLength, 
     verticalBracePieces, frameWidth, frameHeight, requiredOpening, postSpacing,
@@ -20,7 +20,8 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
   } = results;
 
   const isBarrierGate = gateType === 'Barrier';
-
+  const isDouble = gateType.toLowerCase().includes('double');
+  
   const drawingHeight = isBarrierGate ? (hingeSideHeight || 0) : frameHeight;
   const aspectRatio = frameWidth / drawingHeight;
 
@@ -51,11 +52,17 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
 
   // A function to render a single gate leaf
   const renderGateLeaf = (key: number, leafWidth: number) => {
+    const effectiveHeight = isBarrierGate ? hingeSideHeight : frameHeight;
+    if (!effectiveHeight) return null;
+
     if (isBarrierGate && hingeSideHeight && latchSideHeight && topRailLength) {
         const heightDiff = hingeSideHeight - latchSideHeight;
         const topRailAngle = Math.atan(heightDiff / leafWidth) * (180 / Math.PI);
         const diagonalBraceAngle = Math.atan(hingeSideHeight / leafWidth) * (180 / Math.PI);
-        const verticalBracePosition = leafWidth / 2;
+        
+        const verticalBracePositionPercent = 50; // Midpoint
+        const vertBraceHeight = latchSideHeight + (heightDiff * (1 - (verticalBracePositionPercent / 100)));
+
 
         return (
             <div key={key} className="relative w-full" style={{ aspectRatio: `${leafWidth / hingeSideHeight}`}}>
@@ -64,17 +71,17 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
                 {/* Latch Upright */}
                 <div className="absolute bottom-0 right-0 w-2 bg-foreground" style={{ height: `${(latchSideHeight / hingeSideHeight) * 100}%` }}></div>
                 {/* Top Tapered Rail */}
-                <div className="absolute top-0 left-0 h-2 bg-foreground origin-top-left" style={{ width: `${topRailLength / leafWidth * 100}%`, transform: `rotate(-${topRailAngle}deg)` }}></div>
+                <div className="absolute top-0 left-0 h-2 bg-foreground origin-top-left" style={{ width: `${(topRailLength / Math.sqrt(leafWidth**2 + heightDiff**2)) * 100}%`, transform: `rotate(-${topRailAngle}deg) translate(1px, -1px)` }}></div>
                 {/* Diagonal Brace */}
-                <div className="absolute top-0 left-0 h-2 bg-foreground/80 origin-top-left" style={{ width: `${mainDiagonalBraceLength / leafWidth * 100}%`, transform: `rotate(-${diagonalBraceAngle}deg)` }}></div>
+                <div className="absolute top-0 left-0 h-2 bg-foreground/80 origin-top-left" style={{ width: `${(mainDiagonalBraceLength / Math.sqrt(leafWidth**2 + hingeSideHeight**2)) * 100}%`, transform: `rotate(-${diagonalBraceAngle}deg)` }}></div>
                 {/* Vertical Brace */}
                 {barrierVerticalBraceLength && 
-                  <div className="absolute bottom-0 w-2 bg-foreground/80" style={{ left: `${verticalBracePosition}px`, height: `${(barrierVerticalBraceLength / hingeSideHeight) * 100}%` }}></div>
+                  <div className="absolute bottom-0 w-2 bg-foreground/80" style={{ left: `${verticalBracePositionPercent}%`, height: `${(vertBraceHeight / hingeSideHeight) * 100}%` }}></div>
                 }
 
                  {/* Labels */}
                 <span className="absolute top-0 left-0 -translate-x-full text-xs font-bold bg-background px-1 text-foreground whitespace-nowrap">{hingeSideHeight}"</span>
-                <span className="absolute top-full right-0 text-xs font-bold bg-background px-1 text-foreground whitespace-nowrap">{latchSideHeight}"</span>
+                <span className="absolute right-0 -translate-y-1/2" style={{top: `${100 - (latchSideHeight / hingeSideHeight * 100)}%`, right: '0', transform: 'translateX(100%) translateY(-50%)'}}><span className="text-xs font-bold bg-background px-1 text-foreground whitespace-nowrap">{latchSideHeight}"</span></span>
                 <span className="absolute top-0 left-1/2 -translate-y-full text-xs font-bold bg-background px-1 text-foreground">{topRailLength}"</span>
             </div>
         );
@@ -117,11 +124,12 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
     );
   };
 
-  const leafDisplayWidth = leafs > 1 ? (frameWidth - 2) / leafs : frameWidth;
+  const leafDisplayWidth = frameWidth;
 
   const calculationModeText = calculationMode === 'opening' ? 'Opening Size' : 'Frame Size';
-  const widthLabel = calculationMode === 'opening' ? `Opening Width: ${postSpacing}"` : `Frame Width: ${frameWidth}"`;
-  const heightLabel = isBarrierGate ? `Max Height: ${hingeSideHeight}"` : `Frame Height: ${frameHeight}"`;
+  const widthLabel = calculationMode === 'opening' ? `Total Opening: ${postSpacing}"` : `Total Frame Width: ${gateWidth}"`;
+  const heightLabel = isBarrierGate ? `Max Height: ${hingeSideHeight}"` : `Frame Height: ${gateHeight}"`;
+  const drawingDescription = isDouble ? "For Fabrication - Drawing shows ONE of TWO identical leaves." : "For Fabrication - All measurements in inches";
 
   return (
     <div className="p-8 bg-background text-foreground">
@@ -130,7 +138,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
           <div className="flex justify-between items-start">
             <div>
               <CardTitle className="text-3xl font-bold">Gate Shop Drawing</CardTitle>
-              <CardDescription className="text-base">For Fabrication - All measurements in inches</CardDescription>
+              <CardDescription className="text-base">{drawingDescription}</CardDescription>
             </div>
             <DelawareFenceSolutionsLogoIcon className="h-12 w-auto" />
           </div>
@@ -149,7 +157,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
               <div className="flex justify-center items-center mb-2">
                 <div className="border-t-2 border-b-2 border-l-2 border-foreground h-4 w-1"></div>
                 <div className="flex-grow border-t-2 border-foreground text-center relative">
-                  <span className="text-lg font-bold bg-background px-2 absolute -top-4 left-1/2 -translate-x-1/2">{widthLabel}</span>
+                  <span className="text-lg font-bold bg-background px-2 absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">{isDouble ? `Leaf Width: ${frameWidth}"` : widthLabel}</span>
                 </div>
                 <div className="border-t-2 border-b-2 border-r-2 border-foreground h-4 w-1"></div>
               </div>
@@ -166,7 +174,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
 
                 {/* Gate Representation */}
                 <div className="flex-grow flex items-stretch gap-2 relative" style={{aspectRatio: `${aspectRatio}`}}>
-                   {Array.from({ length: leafs }).map((_, i) => renderGateLeaf(i, leafDisplayWidth))}
+                   {renderGateLeaf(0, leafDisplayWidth)}
                    {!isBarrierGate && (
                     <>
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
@@ -182,7 +190,7 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
 
           {/* Cut List Table */}
           <div>
-            <h3 className="text-xl font-bold mb-2">Cut & Notch List</h3>
+            <h3 className="text-xl font-bold mb-2">Total Cut & Notch List For {isDouble ? 'Two Gates' : 'Gate'}</h3>
             <Table>
               <TableHeader>
                 <TableRow>

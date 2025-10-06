@@ -44,6 +44,7 @@ export function PipeCutCalculatorForm() {
   
   const calculationMode = form.watch('calculationMode');
   const gateType = form.watch('gateType');
+  const isBarrierGate = gateType === 'Barrier';
 
   const handleCalculation = () => {
     form.trigger().then(isValid => {
@@ -108,8 +109,7 @@ export function PipeCutCalculatorForm() {
   const heightLabel = calculationMode === 'opening' ? 'Opening Height (inches)' : 'Frame Height (inches)';
   
   const showHorizontalBraceCheckbox = (results?.frameHeight || 0) > 48;
-  const showVerticalBraceCheckbox = (results?.frameWidth || 0) > 60;
-  const isBarrierGate = gateType === 'Barrier';
+  const showVerticalBraceCheckbox = (form.getValues('gateWidth') / (gateType.includes('Double') ? 2 : 1)) > 60;
 
   return (
     <>
@@ -159,6 +159,26 @@ export function PipeCutCalculatorForm() {
                 )}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <FormField
+                  control={form.control}
+                  name="gateType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gate Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CATALOG.GATE_PIPE.GATE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="gateWidth"
@@ -260,26 +280,6 @@ export function PipeCutCalculatorForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="gateType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gate Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {CATALOG.GATE_PIPE.GATE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {!isBarrierGate && (
@@ -326,7 +326,7 @@ export function PipeCutCalculatorForm() {
                                 Include Vertical Brace
                               </FormLabel>
                               <FormDescription>
-                                Recommended for gates over 60" wide.
+                                Recommended for gate leaves over 60" wide.
                               </FormDescription>
                             </div>
                           </FormItem>
@@ -348,7 +348,7 @@ export function PipeCutCalculatorForm() {
                 data={{
                   'Calculation Mode': formInputs?.calculationMode === 'opening' ? 'Opening Size' : 'Frame Size',
                   'Required Opening': results.requiredOpening ? `${results.requiredOpening}"` : undefined,
-                  'Final Frame Size': `${results.frameWidth}" W x ${results.frameHeight}" H`,
+                  'Final Frame Size (per leaf)': `${results.frameWidth}" W x ${results.frameHeight}" H`,
                   'Hinge Upright': isBarrierGate ? `${results.hingeSideHeight}"` : undefined,
                   'Latch Upright': isBarrierGate ? `${results.latchSideHeight}"` : undefined,
                   'Uprights Length (each)': !isBarrierGate ? `${results.uprightsLength}"` : undefined,
