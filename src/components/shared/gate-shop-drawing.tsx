@@ -11,66 +11,117 @@ interface GateShopDrawingProps {
 }
 
 export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
-  const { gateWidth, gateHeight, frameDiameter, gateType, calculationMode } = inputs;
-  const { uprightsLength, horizontalsLength, leafs, horizontalBraceLength, verticalBracePieces, frameWidth, frameHeight, requiredOpening, postSpacing } = results;
+  const { gateWidth, frameDiameter, gateType, calculationMode } = inputs;
+  const { 
+    uprightsLength, horizontalsLength, leafs, horizontalBraceLength, 
+    verticalBracePieces, frameWidth, frameHeight, requiredOpening, postSpacing,
+    hingeSideHeight, latchSideHeight, topRailLength, mainDiagonalBraceLength,
+    barrierVerticalBraceLength
+  } = results;
 
-  const aspectRatio = frameWidth / frameHeight;
+  const isBarrierGate = gateType === 'Barrier';
+
+  const drawingHeight = isBarrierGate ? (hingeSideHeight || 0) : frameHeight;
+  const aspectRatio = frameWidth / drawingHeight;
+
+  // Create Cut List
+  let cutList: { qty: number, length: string, description: string }[] = [];
+  if (isBarrierGate) {
+    cutList = [
+      { qty: leafs, length: `${hingeSideHeight}"`, description: 'Hinge Upright' },
+      { qty: leafs, length: `${latchSideHeight}"`, description: 'Latch Upright' },
+      { qty: leafs, length: `${topRailLength}"`, description: 'Top Rail (Tapered)' },
+      { qty: leafs, length: `${mainDiagonalBraceLength}"`, description: 'Main Diagonal Brace' },
+    ];
+    if (barrierVerticalBraceLength) {
+      cutList.push({ qty: leafs, length: `${barrierVerticalBraceLength}"`, description: 'Vertical Brace' });
+    }
+  } else {
+    cutList = [
+      { qty: leafs * 2, length: `${uprightsLength}"`, description: 'Frame Uprights (Cut)' },
+      { qty: leafs * 2, length: `${horizontalsLength}"`, description: 'Frame Horizontals (Cut)' },
+    ];
+    if (horizontalBraceLength) {
+      cutList.push({ qty: leafs, length: `${horizontalBraceLength}"`, description: 'Horizontal Brace (Cut & Notch)' });
+    }
+    if (verticalBracePieces) {
+      cutList.push({ qty: leafs * verticalBracePieces.count, length: `${verticalBracePieces.length}"`, description: 'Vertical Brace Pieces (Cut & Notch)' });
+    }
+  }
 
   // A function to render a single gate leaf
-  const renderGateLeaf = (key: number, leafWidth: number) => (
-    <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground relative bg-background" style={{ aspectRatio: `${leafWidth / frameHeight}` }}>
-      {/* Horizontal top bar */}
-      <div className="w-full h-2 bg-foreground"></div>
+  const renderGateLeaf = (key: number, leafWidth: number) => {
+    if (isBarrierGate && hingeSideHeight && latchSideHeight && topRailLength) {
+        const heightDiff = hingeSideHeight - latchSideHeight;
+        const topRailAngle = Math.atan(heightDiff / leafWidth) * (180 / Math.PI);
+        const diagonalBraceAngle = Math.atan(hingeSideHeight / leafWidth) * (180 / Math.PI);
+        const verticalBracePosition = leafWidth / 2;
 
-      {/* Main body of the gate */}
-      <div className="flex-grow w-full flex items-center justify-center relative">
-        {/* Vertical side bars */}
-        <div className="h-full w-2 bg-foreground"></div>
-        <div className="flex-grow h-full relative">
-          {/* Bracing */}
-          {horizontalBraceLength && (
-              <div className="absolute top-1/2 left-0 w-full h-2 bg-foreground/80 -translate-y-1/2 flex justify-center items-center">
-                   <span className="absolute text-xs font-bold bg-background px-1 text-foreground -mt-5">{horizontalBraceLength}"</span>
-              </div>
-          )}
-          {verticalBracePieces && (
-            <div className="absolute left-1/2 top-0 h-full w-2 bg-foreground/80 -translate-x-1/2 flex flex-col justify-between items-center py-2">
-                <div className="absolute top-1/4 left-0 right-0 flex items-center justify-center">
-                   <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{verticalBracePieces.length}"</span>
-                </div>
-                <div className="absolute bottom-1/4 left-0 right-0 flex items-center justify-center">
-                   <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{verticalBracePieces.length}"</span>
-                </div>
+        return (
+            <div key={key} className="relative w-full" style={{ aspectRatio: `${leafWidth / hingeSideHeight}`}}>
+                {/* Hinge Upright */}
+                <div className="absolute bottom-0 left-0 w-2 bg-foreground" style={{ height: '100%' }}></div>
+                {/* Latch Upright */}
+                <div className="absolute bottom-0 right-0 w-2 bg-foreground" style={{ height: `${(latchSideHeight / hingeSideHeight) * 100}%` }}></div>
+                {/* Top Tapered Rail */}
+                <div className="absolute top-0 left-0 h-2 bg-foreground origin-top-left" style={{ width: `${topRailLength / leafWidth * 100}%`, transform: `rotate(-${topRailAngle}deg)` }}></div>
+                {/* Diagonal Brace */}
+                <div className="absolute top-0 left-0 h-2 bg-foreground/80 origin-top-left" style={{ width: `${mainDiagonalBraceLength / leafWidth * 100}%`, transform: `rotate(-${diagonalBraceAngle}deg)` }}></div>
+                {/* Vertical Brace */}
+                {barrierVerticalBraceLength && 
+                  <div className="absolute bottom-0 w-2 bg-foreground/80" style={{ left: `${verticalBracePosition}px`, height: `${(barrierVerticalBraceLength / hingeSideHeight) * 100}%` }}></div>
+                }
+
+                 {/* Labels */}
+                <span className="absolute top-0 left-0 -translate-x-full text-xs font-bold bg-background px-1 text-foreground whitespace-nowrap">{hingeSideHeight}"</span>
+                <span className="absolute top-full right-0 text-xs font-bold bg-background px-1 text-foreground whitespace-nowrap">{latchSideHeight}"</span>
+                <span className="absolute top-0 left-1/2 -translate-y-full text-xs font-bold bg-background px-1 text-foreground">{topRailLength}"</span>
             </div>
-          )}
+        );
+    }
+
+    // Standard Gate
+    return (
+      <div key={key} className="flex flex-col items-center justify-center border-4 border-foreground relative bg-background" style={{ aspectRatio: `${leafWidth / frameHeight}` }}>
+        {/* Horizontal top bar */}
+        <div className="w-full h-2 bg-foreground"></div>
+
+        {/* Main body of the gate */}
+        <div className="flex-grow w-full flex items-center justify-center relative">
+          {/* Vertical side bars */}
+          <div className="h-full w-2 bg-foreground"></div>
+          <div className="flex-grow h-full relative">
+            {/* Bracing */}
+            {horizontalBraceLength && (
+                <div className="absolute top-1/2 left-0 w-full h-2 bg-foreground/80 -translate-y-1/2 flex justify-center items-center">
+                    <span className="absolute text-xs font-bold bg-background px-1 text-foreground -mt-5">{horizontalBraceLength}"</span>
+                </div>
+            )}
+            {verticalBracePieces && (
+              <div className="absolute left-1/2 top-0 h-full w-2 bg-foreground/80 -translate-x-1/2 flex flex-col justify-between items-center py-2">
+                  <div className="absolute top-1/4 left-0 right-0 flex items-center justify-center">
+                    <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{verticalBracePieces.length}"</span>
+                  </div>
+                  <div className="absolute bottom-1/4 left-0 right-0 flex items-center justify-center">
+                    <span className="absolute text-xs font-bold bg-background px-1 text-foreground">{verticalBracePieces.length}"</span>
+                  </div>
+              </div>
+            )}
+          </div>
+          <div className="h-full w-2 bg-foreground"></div>
         </div>
-        <div className="h-full w-2 bg-foreground"></div>
+        
+        {/* Horizontal bottom bar */}
+        <div className="w-full h-2 bg-foreground"></div>
       </div>
-      
-      {/* Horizontal bottom bar */}
-      <div className="w-full h-2 bg-foreground"></div>
-    </div>
-  );
+    );
+  };
 
   const leafDisplayWidth = leafs > 1 ? (frameWidth - 2) / leafs : frameWidth;
 
-  // Create Cut List
-  const cutList = [
-    { qty: leafs * 2, length: `${uprightsLength}"`, description: 'Frame Uprights (Cut)' },
-    { qty: leafs * 2, length: `${horizontalsLength}"`, description: 'Frame Horizontals (Cut)' },
-  ];
-
-  if (horizontalBraceLength) {
-    cutList.push({ qty: leafs, length: `${horizontalBraceLength}"`, description: 'Horizontal Brace (Cut & Notch)' });
-  }
-
-  if (verticalBracePieces) {
-    cutList.push({ qty: leafs * verticalBracePieces.count, length: `${verticalBracePieces.length}"`, description: 'Vertical Brace Pieces (Cut & Notch)' });
-  }
-
   const calculationModeText = calculationMode === 'opening' ? 'Opening Size' : 'Frame Size';
   const widthLabel = calculationMode === 'opening' ? `Opening Width: ${postSpacing}"` : `Frame Width: ${frameWidth}"`;
-  const heightLabel = `Frame Height: ${frameHeight}"`;
+  const heightLabel = isBarrierGate ? `Max Height: ${hingeSideHeight}"` : `Frame Height: ${frameHeight}"`;
 
   return (
     <div className="p-8 bg-background text-foreground">
@@ -116,11 +167,14 @@ export function GateShopDrawing({ results, inputs }: GateShopDrawingProps) {
                 {/* Gate Representation */}
                 <div className="flex-grow flex items-stretch gap-2 relative" style={{aspectRatio: `${aspectRatio}`}}>
                    {Array.from({ length: leafs }).map((_, i) => renderGateLeaf(i, leafDisplayWidth))}
-                   {/* Labels for internal cuts */}
-                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
-                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
-                   <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full text-sm font-bold bg-background px-1 text-foreground whitespace-nowrap">{uprightsLength}"</div>
-                   <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full text-sm font-bold bg-background px-1 text-foreground whitespace-nowrap">{uprightsLength}"</div>
+                   {!isBarrierGate && (
+                    <>
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full text-sm font-bold bg-background px-1 text-foreground">{horizontalsLength}"</div>
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full text-sm font-bold bg-background px-1 text-foreground whitespace-nowrap">{uprightsLength}"</div>
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full text-sm font-bold bg-background px-1 text-foreground whitespace-nowrap">{uprightsLength}"</div>
+                    </>
+                   )}
                 </div>
               </div>
             </div>

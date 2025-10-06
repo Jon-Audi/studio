@@ -35,6 +35,8 @@ export const PipeCutCalculatorSchema = z.object({
   calculationMode: z.enum(['opening', 'frame']).default('opening'),
   gateWidth: z.coerce.number().min(1, "Gate width must be positive"),
   gateHeight: z.coerce.number().min(1, "Gate height must be positive"),
+  hingeSideHeight: z.string().optional(),
+  latchSideHeight: z.string().optional(),
   frameDiameter: z.string().min(1, "Frame diameter is required"),
   gateType: z.string().min(1, "Gate type is required"),
   frameColor: z.enum(['galvanized', 'black']),
@@ -46,8 +48,8 @@ export type PipeCutCalculatorInput = z.infer<typeof PipeCutCalculatorSchema>;
 export interface PipeCutCalculatorResult {
   frameWidth: number;
   frameHeight: number;
-  uprightsLength: number;
-  horizontalsLength: number;
+  uprightsLength?: number;
+  horizontalsLength?: number;
   postCount: number;
   postSpacing: number;
   leafs: number;
@@ -59,6 +61,12 @@ export interface PipeCutCalculatorResult {
   totalPipeLength?: number;
   totalCost?: number;
   requiredOpening?: number;
+  // Barrier Gate Specific
+  hingeSideHeight?: number;
+  latchSideHeight?: number;
+  topRailLength?: number;
+  mainDiagonalBraceLength?: number;
+  barrierVerticalBraceLength?: number;
 }
 
 const GateEntrySchema = z.object({

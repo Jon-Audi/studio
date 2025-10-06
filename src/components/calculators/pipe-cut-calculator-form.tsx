@@ -30,7 +30,9 @@ export function PipeCutCalculatorForm() {
     defaultValues: {
       calculationMode: 'opening',
       gateWidth: 48, // inches
-      gateHeight: 48, // inches
+      gateHeight: 48, // inches - for standard gates
+      hingeSideHeight: DEFAULTS.GATE_PIPE.barrierHingeHeight,
+      latchSideHeight: DEFAULTS.GATE_PIPE.barrierLatchHeight,
       frameDiameter: DEFAULTS.GATE_PIPE.frameDiameter,
       gateType: DEFAULTS.GATE_PIPE.gateType,
       frameColor: DEFAULTS.GATE_PIPE.frameColor,
@@ -41,6 +43,7 @@ export function PipeCutCalculatorForm() {
   });
   
   const calculationMode = form.watch('calculationMode');
+  const gateType = form.watch('gateType');
 
   const handleCalculation = () => {
     form.trigger().then(isValid => {
@@ -106,6 +109,7 @@ export function PipeCutCalculatorForm() {
   
   const showHorizontalBraceCheckbox = (results?.frameHeight || 0) > 48;
   const showVerticalBraceCheckbox = (results?.frameWidth || 0) > 60;
+  const isBarrierGate = gateType === 'Barrier';
 
   return (
     <>
@@ -168,19 +172,54 @@ export function PipeCutCalculatorForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="gateHeight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{heightLabel}</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="e.g., 48" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                
+                {isBarrierGate ? (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="hingeSideHeight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hinge Side Height</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <SelectContent>{CATALOG.GATE_PIPE.BARRIER_HINGE_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}"</SelectItem>)}</SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="latchSideHeight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Latch Side Height</FormLabel>
+                           <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <SelectContent>{CATALOG.GATE_PIPE.BARRIER_LATCH_HEIGHTS.map(h => <SelectItem key={h} value={h}>{h}"</SelectItem>)}</SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name="gateHeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{heightLabel}</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="e.g., 48" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                  <FormField
                   control={form.control}
                   name="frameColor"
@@ -243,61 +282,62 @@ export function PipeCutCalculatorForm() {
                 />
               </div>
 
-              <div className="space-y-4">
-                <FormLabel>Bracing Options</FormLabel>
-                 {showHorizontalBraceCheckbox && (
-                    <FormField
-                      control={form.control}
-                      name="includeHorizontalBrace"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                           <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              Include Horizontal Brace
-                            </FormLabel>
-                            <FormDescription>
-                              Recommended for gates over 48" tall.
-                            </FormDescription>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                  {showVerticalBraceCheckbox && (
-                    <FormField
-                      control={form.control}
-                      name="includeVerticalBrace"
-                      render={({ field }) => (
-                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                           <FormControl>
-                             <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              Include Vertical Brace
-                            </FormLabel>
-                            <FormDescription>
-                              Recommended for gates over 60" wide.
-                            </FormDescription>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                  {!showHorizontalBraceCheckbox && !showVerticalBraceCheckbox && (
-                     <p className="text-sm text-muted-foreground p-4 border rounded-md">No bracing required for a gate of this size.</p>
-                  )}
-              </div>
-
+              {!isBarrierGate && (
+                <div className="space-y-4">
+                  <FormLabel>Bracing Options</FormLabel>
+                  {showHorizontalBraceCheckbox && (
+                      <FormField
+                        control={form.control}
+                        name="includeHorizontalBrace"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>
+                                Include Horizontal Brace
+                              </FormLabel>
+                              <FormDescription>
+                                Recommended for gates over 48" tall.
+                              </FormDescription>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                    {showVerticalBraceCheckbox && (
+                      <FormField
+                        control={form.control}
+                        name="includeVerticalBrace"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>
+                                Include Vertical Brace
+                              </FormLabel>
+                              <FormDescription>
+                                Recommended for gates over 60" wide.
+                              </FormDescription>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                    {!showHorizontalBraceCheckbox && !showVerticalBraceCheckbox && (
+                      <p className="text-sm text-muted-foreground p-4 border rounded-md">No bracing required for a gate of this size.</p>
+                    )}
+                </div>
+              )}
             </form>
           </Form>
 
@@ -309,8 +349,13 @@ export function PipeCutCalculatorForm() {
                   'Calculation Mode': formInputs?.calculationMode === 'opening' ? 'Opening Size' : 'Frame Size',
                   'Required Opening': results.requiredOpening ? `${results.requiredOpening}"` : undefined,
                   'Final Frame Size': `${results.frameWidth}" W x ${results.frameHeight}" H`,
-                  'Uprights Length (each)': `${results.uprightsLength}"`,
-                  'Horizontals Length (each)': `${results.horizontalsLength}" (${results.leafs} leaf/leaves)`,
+                  'Hinge Upright': isBarrierGate ? `${results.hingeSideHeight}"` : undefined,
+                  'Latch Upright': isBarrierGate ? `${results.latchSideHeight}"` : undefined,
+                  'Uprights Length (each)': !isBarrierGate ? `${results.uprightsLength}"` : undefined,
+                  'Horizontals Length (each)': !isBarrierGate ? `${results.horizontalsLength}" (${results.leafs} leaf/leaves)` : undefined,
+                  'Top Rail (Tapered)': isBarrierGate ? `${results.topRailLength}"` : undefined,
+                  'Main Diagonal Brace': isBarrierGate ? `${results.mainDiagonalBraceLength}"` : undefined,
+                  'Vertical Brace': isBarrierGate ? `${results.barrierVerticalBraceLength}"` : undefined,
                   'Horizontal Brace Length': results.horizontalBraceLength ? `${results.horizontalBraceLength}"` : undefined,
                   'Vertical Brace (each)': results.verticalBracePieces ? `${results.verticalBracePieces.count} pieces @ ${results.verticalBracePieces.length}"` : undefined,
                   'Number of Gate Posts': results.postCount,

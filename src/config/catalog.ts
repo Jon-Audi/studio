@@ -30,11 +30,13 @@ export const CATALOG = {
    */
   GATE_PIPE: {
     FRAME_DIAMETERS: ["1 3/8″", "1 5/8″", "2″"],
-    GATE_TYPES: ["Single", "Double"],
+    GATE_TYPES: ["Single", "Double", "Barrier"],
     FRAME_COLORS: [
       { value: 'galvanized', label: 'Galvanized' },
       { value: 'black', label: 'Black' }
     ],
+    BARRIER_HINGE_HEIGHTS: ["36", "42"], // in inches
+    BARRIER_LATCH_HEIGHTS: ["24", "30"], // in inches
     PRICING: {
       galvanized: {
         "1 3/8″": 0.74,
@@ -142,6 +144,8 @@ export const DEFAULTS = {
     frameDiameter: CATALOG.GATE_PIPE.FRAME_DIAMETERS[0], // 1 3/8"
     gateType: CATALOG.GATE_PIPE.GATE_TYPES[0], // Single
     frameColor: CATALOG.GATE_PIPE.FRAME_COLORS[0].value, // galvanized
+    barrierHingeHeight: CATALOG.GATE_PIPE.BARRIER_HINGE_HEIGHTS[0], // 36"
+    barrierLatchHeight: CATALOG.GATE_PIPE.BARRIER_LATCH_HEIGHTS[0], // 24"
   },
 
   /**
